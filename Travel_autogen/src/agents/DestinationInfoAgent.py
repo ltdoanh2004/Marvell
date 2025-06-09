@@ -13,7 +13,7 @@ class DestinationInfoAgent(RoutedAgent):
         content = f"[Destination Info] {message.destination} is sunny, cultural, and has great food."
         
         # Get session key from topic source
-        session = ctx.topic_id  # ✅ đúng cách lấy session
+        session = ctx.topic_id.source
         await self.publish_message(
             TravelResponse(content=content, source="destination"),
             TopicId("closer_reply", session)  # Phản hồi lại đúng session
