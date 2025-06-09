@@ -4,7 +4,7 @@ from autogen_core import TopicId, DefaultTopicId
 from models.travels import TravelQuery, TravelResponse
 from typing import Any
 
-@type_subscription(topic_type="flight_query")
+@type_subscription(topic_type="closer_reply")
 class CloserAgent(RoutedAgent):
     def __init__(self):
         super().__init__("Closer Agent")
@@ -15,7 +15,6 @@ class CloserAgent(RoutedAgent):
         session = ctx.sender.key
         self.responses[session] = {}
 
-        # Broadcast to both destination info and flight checker
         await self.publish_message(message, TopicId("destination_query", session))
         await self.publish_message(message, TopicId("flight_query", session))
 
@@ -30,3 +29,4 @@ class CloserAgent(RoutedAgent):
                 self.responses[session].get("flight", "")
             ])
             print(f"[CloserAgent] Final suggestion to user:\n{combined}")
+
