@@ -12,7 +12,7 @@ class CloserAgent(RoutedAgent):
 
     @message_handler
     async def handle_message(self, message: TravelQuery, ctx: MessageContext) -> Any:
-        session = ctx.topic_id
+        session = ctx.sender.key
         self.responses[session] = {}
 
         # Broadcast to both destination info and flight checker
