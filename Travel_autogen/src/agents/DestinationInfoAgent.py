@@ -1,17 +1,20 @@
-from autogen_core import RoutedAgent, MessageContext, message_handler, default_subscription
-from src.models import TravelQuery, TravelResponse
-from autogen_core.messaging import TopicId
+from autogen_core import RoutedAgent, MessageContext, message_handler, type_subscription, TopicId
+from models.travels import TravelQuery, TravelResponse
 from typing import Any
-@default_subscription(topic_type="destination_query")
+
+@type_subscription(topic_type="destination_query")
 class DestinationInfoAgent(RoutedAgent):
     def __init__(self):
         super().__init__("Destination Info Agent")
 
     @message_handler
     async def handle_message(self, message: TravelQuery, ctx: MessageContext) -> Any:
-        # Simulate destination info (in real app: use GPT or API)
+        # Simulate destination info
         content = f"[Destination Info] {message.destination} is sunny, cultural, and has great food."
+        
+        # Get session key from topic source
+        session = ctx.topic_id  # ✅ đúng cách lấy session
         await self.publish_message(
             TravelResponse(content=content, source="destination"),
-            TopicId("closer_reply", ctx.source.key)
+            TopicId("closer_reply", session)  # Phản hồi lại đúng session
         )
