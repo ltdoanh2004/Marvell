@@ -11,7 +11,7 @@ class FlightCheckerAgent(RoutedAgent):
     @message_handler
     async def handle_message(self, message: TravelQuery, ctx: MessageContext) -> Any:
         # Simulate flight info
-        session = ctx.topic_id
+        session = ctx.topic_id.source
         content = f"[Flight Info] Flights to {message.destination} start from $250 round trip."
         await self.publish_message(
             TravelResponse(content=content, source="flight"),
