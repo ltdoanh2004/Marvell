@@ -1,19 +1,42 @@
-from autogen_core import RoutedAgent, MessageContext, message_handler, default_subscription, type_subscription
 from models.travels import TravelQuery, TravelResponse
-from autogen_core import TopicId
 from typing import Any
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+from autogen_core import TopicId
+from autogen_core import RoutedAgent, MessageContext, message_handler, type_subscription
+from autogen_agentchat.messages import TextMessage
+from autogen_agentchat.agents import AssistantAgent
+from autogen_core.model_context import BufferedChatCompletionContext
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 @type_subscription(topic_type = "flight_query")
 class FlightCheckerAgent(RoutedAgent):
     def __init__(self):
         super().__init__("Flight Checker Agent")
+        self.model_context = BufferedChatCompletionContext(buffer_size=2)
+        self.model_client = OpenAIChatCompletionClient(
+            model = "gpt-4o-mini",
+            api_key=os.getenv("OPENAI_API_KEY"),
+        )
+        self.agent = AssistantAgent(
+            name="FlightCheckerAgent",
+            model_client=self.model_client,
+            model_context=self.model_context,
+            system_message="You are a flight checker agent. You provide information about flights based on user queries.",
+        )
+        self.cancellation_token = None
 
     @message_handler
     async def handle_message(self, message: TravelQuery, ctx: MessageContext) -> Any:
-        # Simulate flight info
         session = ctx.topic_id.source
-        content = f"[Flight Info] Flights to {message.destination} start from $250 round trip."
+        promt = f"Check flights for {message.destination}. just imagine you have data based on destionation. I just want you reply like you have this information about flights. Do not mention that you are an AI or you do not have data. Just reply like you have this information."
+        response = await self.agent.on_messages(
+            [TextMessage(source="user", content=promt)],
+            self.cancellation_token
+        )
         await self.publish_message(
-            TravelResponse(content=content, source="flight"),
-            TopicId("closer_reply", session)  # Respond back to the closer agent with the session
+            TravelResponse(content=response.chat_message.content , source="flight"),
+            TopicId("closer_reply", session)
         )
