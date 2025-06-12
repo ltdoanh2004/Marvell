@@ -31,7 +31,7 @@ async def main():
     participants=[user_agent, destination_agent, flight_agent],
     model_client=model_client,
     max_turns=8
-)
+    )
     await Console(groupchat.run_stream(task="finish confirm the tourist destination with customers"))
 
 
