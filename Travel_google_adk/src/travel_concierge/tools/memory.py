@@ -24,7 +24,7 @@ from google.adk.sessions.state import State
 from google.adk.tools import ToolContext
 
 from travel_concierge.shared_libraries import constants
-
+from travel_concierge.tools.memory_control import AgenticMemorySystem
 SAMPLE_SCENARIO_PATH = os.getenv(
     "TRAVEL_CONCIERGE_SCENARIO", "travel_concierge/profiles/itinerary_empty_default.json"
 )
@@ -65,6 +65,7 @@ def memorize(key: str, value: str, tool_context: ToolContext):
     mem_dict = tool_context.state
     mem_dict[key] = value
     return {"status": f'Stored "{key}": "{value}"'}
+# def memorize(key: str, value: str, tool_context: ToolContext):
 
 
 def forget(key: str, value: str, tool_context: ToolContext):
