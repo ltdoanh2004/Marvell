@@ -75,6 +75,7 @@ class TravelMemoryService(BaseMemoryService):
         event_content = "\n".join(
             [part.text for event in event_list for part in event.content.parts]
         )
+        print(f"Adding session content to memory for user {user_key}: {event_content}")
         self.memory_system.add_note(
             content=event_content,
             id=user_key,
@@ -87,7 +88,7 @@ class TravelMemoryService(BaseMemoryService):
         """Search through memories"""
         response = SearchMemoryResponse()
         results = self.memory_system.search_agentic(query, k=5)
-
+        print(f"Search results for query '{query}': {results}")
         for result in results:  
             response.memories.append(
               MemoryEntry(

@@ -202,8 +202,9 @@ class TravelMemoryService(BaseMemoryService):
     @override
     async def search_memory(self, *, app_name, user_id, query):
         """Search through memories"""
+        """If user wants to search for memories for called the experience in the past, this function will be called."""
         response = SearchMemoryResponse()
-        results = self.memory_system.search_agentic(query, k=5)
+        results = self.memorxy_system.search_agentic(query, k=5)
         print(f"Search results for query '{query}': {results}")
         for result in results:  
             response.memories.append(
