@@ -45,11 +45,9 @@ class MemoryEntry(BaseModel):
   """
 class SearchMemoryResponse(BaseModel):
   """Represents the response from a memory search.
-
   Attributes:
       memories: A list of memory entries that relate to the search query.
   """
-
   memories: list[MemoryEntry] = Field(default_factory=list)
 
 
@@ -57,6 +55,9 @@ def _user_key(app_name: str, user_id: str):
   return f'{app_name}/{user_id}'
 
 
+def _extract_words_lower(text: str) -> set[str]:
+  """Extracts words from a string and converts them to lowercase."""
+  return set([word.lower() for word in re.findall(r'[A-Za-z]+', text)])
 class TravelMemoryService(BaseMemoryService):
     def __init__(self):
         self._session_events: dict[str, dict[str, list[Event]]] = {}
