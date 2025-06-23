@@ -26,7 +26,12 @@ class ChromaRetriever:
         self.client = chromadb.Client(Settings(allow_reset=True))
         self.embedding_function = SentenceTransformerEmbeddingFunction(model_name=model_name)
         self.collection = self.client.get_or_create_collection(name=collection_name,embedding_function=self.embedding_function)
-        
+    def get_collection_count(self):
+        """Print the number of collections."""
+        # Get all collection names
+        collections = self.client.list_collections()  # List all collections
+        print(f"Total number of collections: {len(collections)}")
+        return len(collections)
     def add_document(self, document: str, metadata: Dict, doc_id: str):
         """Add a document to ChromaDB.
         
@@ -44,7 +49,6 @@ class ChromaRetriever:
                 processed_metadata[key] = json.dumps(value)
             else:
                 processed_metadata[key] = str(value)
-                
         self.collection.add(
             documents=[document],
             metadatas=[processed_metadata],
@@ -58,7 +62,17 @@ class ChromaRetriever:
             doc_id: ID of document to delete
         """
         self.collection.delete(ids=[doc_id])
+    def list_documents(self):
+        """Print all documents in the collection."""
+        # Retrieve all documents and their metadata from the collection
+        results = self.collection.query(query_texts=[""], n_results=100)  # Query all documents
         
+        # Print the document contents and their metadata
+        for doc, metadata in zip(results['documents'][0], results['metadatas'][0]):
+            print(f"Document: {doc}")
+            print(f"Metadata: {metadata}")
+            print("=========================================")
+    
     def search(self, query: str, k: int = 5):
         """Search for similar documents.
         

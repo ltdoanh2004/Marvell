@@ -125,3 +125,92 @@ def _load_precreated_itinerary(callback_context: CallbackContext):
         print(f"\nLoading Initial State: {data}\n")
 
     _set_initial_states(data["state"], callback_context.state)
+
+
+
+
+from google.adk.memory import BaseMemoryService
+from google.adk.events import Event
+from typing_extensions import override
+
+from pydantic import BaseModel
+from pydantic import Field
+from typing import Dict, List
+import json
+from dotenv import load_dotenv
+import os
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+from typing import Optional
+from google.genai import types
+from google.genai.types import Content, Part
+class MemoryEntry(BaseModel):
+  """Represent one memory entry."""
+
+  content: types.Content
+  """The main content of the memory."""
+
+  author: Optional[str] = None
+  """The author of the memory."""
+
+  timestamp: Optional[str] = None
+  """The timestamp when the original content of this memory happened.
+
+  This string will be forwarded to LLM. Preferred format is ISO 8601 format.
+  """
+class SearchMemoryResponse(BaseModel):
+  """Represents the response from a memory search.
+
+  Attributes:
+      memories: A list of memory entries that relate to the search query.
+  """
+
+  memories: list[MemoryEntry] = Field(default_factory=list)
+
+
+def _user_key(app_name: str, user_id: str):
+  return f'{app_name}/{user_id}'
+
+
+class TravelMemoryService(BaseMemoryService):
+    def __init__(self):
+        self._session_events: dict[str, dict[str, list[Event]]] = {}
+        self.travel_preferences: Dict = {}
+        self.itineraries: Dict = {}
+        self.memory_system = AgenticMemorySystem(
+            model_name='all-MiniLM-L6-v2',  # Embedding model for ChromaDB
+            llm_backend="openai",           # LLM backend (openai/ollama)
+            llm_model="gpt-4o-mini",
+            api_key=api_key                  # LLM model name
+        )
+        print("Initialized TravelMemoryService with AgenticMemorySystem.")
+    @override
+    async def add_session_to_memory(self, session):
+        user_key = _user_key(session.app_name, session.user_id)
+        event_list = [event for event in session.events if event.content and event.content.parts]
+        event_content = "\n".join(
+            [part.text for event in event_list for part in event.content.parts]
+        )
+        print(f"Adding session content to memory for user {user_key}: {event_content}")
+        self.memory_system.add_note(
+            content=event_content,
+            id=user_key,
+            category="session",
+            tags=["session", session.app_name, session.user_id],
+        )
+
+    @override
+    async def search_memory(self, *, app_name, user_id, query):
+        """Search through memories"""
+        """If user wants to search for memories for called the experience in the past, this function will be called."""
+        response = SearchMemoryResponse()
+        results = self.memorxy_system.search_agentic(query, k=5)
+        print(f"Search results for query '{query}': {results}")
+        for result in results:  
+            response.memories.append(
+              MemoryEntry(
+                  content = Content(parts=[Part(text=result["content"])], role="model")
+              ).dict()
+          )
+            break
+        return response

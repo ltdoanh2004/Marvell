@@ -240,7 +240,6 @@ class AgenticMemorySystem:
         # Update retriever with all documents
         evo_label, note = self.process_memory(note)
         self.memories[note.id] = note
-        
         # Add to ChromaDB with complete metadata
         metadata = {
             "id": note.id,
@@ -256,7 +255,6 @@ class AgenticMemorySystem:
             "tags": note.tags
         }
         self.retriever.add_document(note.content, metadata, note.id)
-        
         if evo_label == True:
             self.evo_cnt += 1
             if self.evo_cnt % self.evo_threshold == 0:
@@ -514,7 +512,6 @@ class AgenticMemorySystem:
         try:
             # Get results from ChromaDB
             results = self.retriever.search(query, k)
-            
             # Process results
             memories = []
             seen_ids = set()

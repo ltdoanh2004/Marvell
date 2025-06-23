@@ -16,9 +16,7 @@
 
 from google.adk.agents import Agent
 from google.adk.memory import BaseMemoryService
-
 from travel_concierge import prompt
-
 from travel_concierge.sub_agents.booking.agent import booking_agent
 from travel_concierge.sub_agents.in_trip.agent import in_trip_agent
 from travel_concierge.sub_agents.inspiration.agent import inspiration_agent
@@ -29,127 +27,107 @@ from travel_concierge.sub_agents.pre_trip.agent import pre_trip_agent
 from travel_concierge.tools.memory_control import AgenticMemorySystem
 from travel_concierge.tools.memory import _load_precreated_itinerary
 
-
-from google.adk.memory import BaseMemoryService
-from google.adk.events import Event
+import click
 from google.adk.sessions import InMemorySessionService, Session
 from typing_extensions import override
-
-from pydantic import BaseModel
-from pydantic import Field
-from typing import Dict, List
-import json
 from dotenv import load_dotenv
 import os
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
-from typing import Optional
 from google.genai import types
-import re
-from google.genai.types import Content, Part
-class MemoryEntry(BaseModel):
-  """Represent one memory entry."""
+from travel_concierge.tools.memory  import TravelMemoryService
+from google.adk.runners import Runner
+import asyncio
+from google.adk.tools import load_memory
 
-  content: types.Content
-  """The main content of the memory."""
+APP_NAME = "Travel Concierge"
+USER_ID = "user123"
+    
+async def handle_user_query(runner, session, query):
+    # Kiểm tra câu hỏi xem có liên quan đến thông tin đã lưu trong bộ nhớ không
+    if "what is my" in query.lower():  # Ví dụ câu hỏi liên quan đến sở thích
+        # Gọi công cụ load_memory để tìm kiếm trong bộ nhớ
+        async for event in runner.run_async(
+            user_id=session.user_id,
+            session_id=session.id,
+            new_message=types.Content(role='user', parts=[types.Part(text=query)]),
+        ):
+            if event.get_function_calls():  # Nếu có yêu cầu gọi hàm load_memory
+                memories = await load_memory.run_async(
+                    args={"query": query, "app_name": APP_NAME, "user_id": session.user_id},
+                    tool_context={}  # Ngữ cảnh công cụ có thể thêm vào nếu cần
+                )
+                if memories.memories:
+                    return memories.memories[0]["content"].parts[0].text
+                else:
+                    return "I don't have any memory about that. Could you tell me again?"
+    
+    # Nếu câu hỏi không liên quan đến bộ nhớ, xử lý bình thường
+    else:
+        user_input = types.Content(role='user', parts=[types.Part(text=query)])
+        async for event in runner.run_async(
+            user_id=session.user_id,
+            session_id=session.id,
+            new_message=user_input,
+        ):
+            if event.content and event.content.parts:
+                return ''.join(part.text or '' for part in event.content.parts)
+    return None
 
-  author: Optional[str] = None
-  """The author of the memory."""
 
-  timestamp: Optional[str] = None
-  """The timestamp when the original content of this memory happened.
+async def main():
 
-  This string will be forwarded to LLM. Preferred format is ISO 8601 format.
-  """
-class SearchMemoryResponse(BaseModel):
-  """Represents the response from a memory search.
-
-  Attributes:
-      memories: A list of memory entries that relate to the search query.
-  """
-
-  memories: list[MemoryEntry] = Field(default_factory=list)
-
-
-def _user_key(app_name: str, user_id: str):
-  return f'{app_name}/{user_id}'
-
-
-def _extract_words_lower(text: str) -> set[str]:
-  """Extracts words from a string and converts them to lowercase."""
-  return set([word.lower() for word in re.findall(r'[A-Za-z]+', text)])
-
-class TravelMemoryService(BaseMemoryService):
-    def __init__(self):
-        self._session_events: dict[str, dict[str, list[Event]]] = {}
-        self.travel_preferences: Dict = {}
-        self.itineraries: Dict = {}
-        self.memory_system = AgenticMemorySystem(
-            model_name='all-MiniLM-L6-v2',  # Embedding model for ChromaDB
-            llm_backend="openai",           # LLM backend (openai/ollama)
-            llm_model="gpt-4o-mini",
-            api_key=api_key                  # LLM model name
-        )
-    @override
-    async def add_session_to_memory(self, session):
-        user_key = _user_key(session.app_name, session.user_id)
-        event_list = [event for event in session.events if event.content and event.content.parts]
-        event_text = "\n".join(
-            [part.text for event in event_list for part in event.content.parts]
-        )
-        event_content = Content(
-            parts=[Part(text=event_text)], role_user=session.user_id, role_assistant=session.app_name
-        )
-        self.memory_system.add_note(
-            content=event_content,
-            id=user_key,
-            category="session",
-            tags=["session", session.app_name, session.user_id],
-            timestamp=session.created_at.strftime("%Y%m%d%H%M"),  # YYYYMM
-        )
-
-    @override
-    async def search_memory(self, *, app_name, user_id, query):
-        """Search through memories"""
-        response = SearchMemoryResponse()
-        results = self.memory_system.search_agentic(query, k=5)
-        for result in results:  
-            response.memories.append(
-              MemoryEntry(
-                  content=Content(result["content"]),
-              )
-          )
+    
+    session_service = InMemorySessionService()
+    memory_service = TravelMemoryService()
+    
+    root_agent = Agent(
+        model="gemini-2.0-flash-001",
+        name="root_agent",
+        description="A Travel Concierge using the services of multiple sub-agents",
+        instruction=prompt.ROOT_AGENT_INSTR,
+        sub_agents=[
+            inspiration_agent,
+            planning_agent,
+            booking_agent,
+            pre_trip_agent,
+            in_trip_agent,
+            post_trip_agent,
+        ],
+        tools=[
+            load_memory
+        ],
+        # before_agent_callback=_load_precreated_itinerary
+    )
+    runner = Runner(
+        agent=root_agent,
+        app_name=APP_NAME,
+        session_service=session_service,
+        memory_service=memory_service
+    )
+    session1_id = "test_memory"
+    session = await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=session1_id)
+    while True:
+        query = input('[user]: ')
+        if not query or not query.strip():
+            continue
+        if query == 'exit':
             break
-        return response
+        user_input = types.Content(role='user', parts=[types.Part(text=query)])
+        async for event in runner.run_async(
+            user_id=session.user_id,
+            session_id=session.id,
+            new_message=user_input,
+        ):
+            print(f"  Event: {event.author} - Type: {'Text' if event.content and event.content.parts and event.content.parts[0].text else ''}"
+            f"{'FuncCall' if event.get_function_calls() else ''}"
+            f"{'FuncResp' if event.get_function_responses() else ''}")
+            if event.content and event.content.parts:
+                if text := ''.join(part.text or '' for part in event.content.parts):
+                    click.echo(f'[{event.author}]: {text}')
+                await memory_service.add_session_to_memory(session)
 
-    def store_preferences(self, user_id: str, preferences: Dict):
-        """Store user travel preferences"""
-        if user_id not in self.travel_preferences:
-            self.travel_preferences[user_id] = {}
-        self.travel_preferences[user_id].update(preferences)
+    await runner.close()
 
-    def store_itinerary(self, user_id: str, itinerary: Dict):
-        """Store user itinerary"""
-        if user_id not in self.itineraries:
-            self.itineraries[user_id] = {}
-        self.itineraries[user_id].update(itinerary)
-
-
-
-# root_agent = Agent(
-#     model="gemini-2.0-flash-001",
-#     name="root_agent",
-#     description="A Travel Concierge using the services of multiple sub-agents",
-#     instruction=prompt.ROOT_AGENT_INSTR,
-#     sub_agents=[
-#         inspiration_agent,
-#         planning_agent,
-#         booking_agent,
-#         pre_trip_agent,
-#         in_trip_agent,
-#         post_trip_agent,
-#     ],
-#     before_agent_callback=_load_precreated_itinerary,
-#     session_service=InMemorySessionService(),
-#     memory_service=TravelMemoryService()
-# )
+if __name__ == "__main__":
+    asyncio.run(main())
