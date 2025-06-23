@@ -1,0 +1,322 @@
+[
+  {
+    "session_id": "session1",
+    "user_input": "In January, the revenue was 100,000.",
+    "expected_output": "Revenue data for January is stored."
+  },
+  {
+    "session_id": "session2",
+    "user_input": "In January, the cost was 60,000.",
+    "expected_output": "Cost data for January is stored."
+  },
+  {
+    "session_id": "session3",
+    "user_input": "In February, the revenue was 120,000.",
+    "expected_output": "Revenue data for February is stored."
+  },
+  {
+    "session_id": "session4",
+    "user_input": "In February, the cost was 70,000.",
+    "expected_output": "Cost data for February is stored."
+  },
+  {
+    "session_id": "session5",
+    "user_input": "In March, the revenue was 150,000.",
+    "expected_output": "Revenue data for March is stored."
+  },
+  {
+    "session_id": "session6",
+    "user_input": "In March, the cost was 80,000.",
+    "expected_output": "Cost data for March is stored."
+  },
+  {
+    "session_id": "session7",
+    "user_input": "What was the revenue in January?",
+    "expected_output": "The revenue in January was 100,000."
+  },
+  {
+    "session_id": "session8",
+    "user_input": "What was the cost in January?",
+    "expected_output": "The cost in January was 60,000."
+  },
+  {
+    "session_id": "session9",
+    "user_input": "What was the revenue in February?",
+    "expected_output": "The revenue in February was 120,000."
+  },
+  {
+    "session_id": "session10",
+    "user_input": "What is the total revenue for January and February?",
+    "expected_output": "The total revenue for January and February is 220,000."
+  },
+  {
+    "session_id": "session11",
+    "user_input": "What is the total cost for January and February?",
+    "expected_output": "The total cost for January and February is 130,000."
+  },
+  {
+    "session_id": "session12",
+    "user_input": "What is the profit for January?",
+    "expected_output": "The profit for January is 40,000."
+  },
+  {
+    "session_id": "session13",
+    "user_input": "In April, the revenue was 180,000.",
+    "expected_output": "Revenue data for April is stored."
+  },
+  {
+    "session_id": "session14",
+    "user_input": "In April, the cost was 90,000.",
+    "expected_output": "Cost data for April is stored."
+  },
+  {
+    "session_id": "session15",
+    "user_input": "What is the total revenue for January, February, March, and April?",
+    "expected_output": "The total revenue for January, February, March, and April is 550,000."
+  },
+  {
+    "session_id": "session16",
+    "user_input": "What is the total cost for January, February, March, and April?",
+    "expected_output": "The total cost for January, February, March, and April is 300,000."
+  },
+  {
+    "session_id": "session17",
+    "user_input": "What is the average revenue for January to April?",
+    "expected_output": "The average revenue for January to April is 137,500."
+  },
+  {
+    "session_id": "session18",
+    "user_input": "What is the average cost for January to April?",
+    "expected_output": "The average cost for January to April is 75,000."
+  },
+  {
+    "session_id": "session19",
+    "user_input": "What was the revenue in March?",
+    "expected_output": "The revenue in March was 150,000."
+  },
+  {
+    "session_id": "session20",
+    "user_input": "What is the profit for March?",
+    "expected_output": "The profit for March is 70,000."
+  },
+  {
+    "session_id": "session21",
+    "user_input": "What is the revenue growth from January to February?",
+    "expected_output": "The revenue growth from January to February is 20%."
+  },
+  {
+    "session_id": "session22",
+    "user_input": "What is the cost growth from January to February?",
+    "expected_output": "The cost growth from January to February is 16.67%."
+  },
+  {
+    "session_id": "session23",
+    "user_input": "What is the revenue growth from February to March?",
+    "expected_output": "The revenue growth from February to March is 25%."
+  },
+  {
+    "session_id": "session24",
+    "user_input": "In May, the revenue was 200,000.",
+    "expected_output": "Revenue data for May is stored."
+  },
+  {
+    "session_id": "session25",
+    "user_input": "In May, the cost was 100,000.",
+    "expected_output": "Cost data for May is stored."
+  },
+  {
+    "session_id": "session26",
+    "user_input": "What is the total revenue from January to May?",
+    "expected_output": "The total revenue from January to May is 750,000."
+  },
+  {
+    "session_id": "session27",
+    "user_input": "What is the total profit from January to May?",
+    "expected_output": "The total profit from January to May is 350,000."
+  },
+  {
+    "session_id": "session28",
+    "user_input": "What is the average revenue for January to May?",
+    "expected_output": "The average revenue for January to May is 150,000."
+  },
+  {
+    "session_id": "session29",
+    "user_input": "In June, the revenue was 250,000.",
+    "expected_output": "Revenue data for June is stored."
+  },
+  {
+    "session_id": "session30",
+    "user_input": "In June, the cost was 120,000.",
+    "expected_output": "Cost data for June is stored."
+  },
+  {
+    "session_id": "session31",
+    "user_input": "What is the revenue growth from May to June?",
+    "expected_output": "The revenue growth from May to June is 25%."
+  },
+  {
+    "session_id": "session32",
+    "user_input": "What is the total revenue from February to June?",
+    "expected_output": "The total revenue from February to June is 950,000."
+  },
+  {
+    "session_id": "session33",
+    "user_input": "What is the average revenue for February to June?",
+    "expected_output": "The average revenue for February to June is 190,000."
+  },
+  {
+    "session_id": "session34",
+    "user_input": "What is the total revenue for the first half of the year (January to June)?",
+    "expected_output": "The total revenue for the first half of the year (January to June) is 1,000,000."
+  },
+  {
+    "session_id": "session35",
+    "user_input": "What is the total profit for the first half of the year (January to June)?",
+    "expected_output": "The total profit for the first half of the year (January to June) is 470,000."
+  },
+  {
+    "session_id": "session36",
+    "user_input": "In July, the revenue was 300,000.",
+    "expected_output": "Revenue data for July is stored."
+  },
+  {
+    "session_id": "session37",
+    "user_input": "In July, the cost was 140,000.",
+    "expected_output": "Cost data for July is stored."
+  },
+  {
+    "session_id": "session38",
+    "user_input": "What was the revenue in July?",
+    "expected_output": "The revenue in July was 300,000."
+  },
+  {
+    "session_id": "session39",
+    "user_input": "What is the total revenue from January to July?",
+    "expected_output": "The total revenue from January to July is 1,300,000."
+  },
+  {
+    "session_id": "session40",
+    "user_input": "What is the average revenue for January to July?",
+    "expected_output": "The average revenue for January to July is approximately 185,714."
+  },
+  {
+    "session_id": "session41",
+    "user_input": "What is the revenue growth from June to July?",
+    "expected_output": "The revenue growth from June to July is 20%."
+  },
+  {
+    "session_id": "session42",
+    "user_input": "In August, the revenue was 280,000.",
+    "expected_output": "Revenue data for August is stored."
+  },
+  {
+    "session_id": "session43",
+    "user_input": "In August, the cost was 130,000.",
+    "expected_output": "Cost data for August is stored."
+  },
+  {
+    "session_id": "session44",
+    "user_input": "What is the total revenue from March to August?",
+    "expected_output": "The total revenue from March to August is 1,360,000."
+  },
+  {
+    "session_id": "session45",
+    "user_input": "What is the average revenue for March to August?",
+    "expected_output": "The average revenue for March to August is approximately 226,667."
+  },
+  {
+    "session_id": "session46",
+    "user_input": "What is the revenue growth from July to August?",
+    "expected_output": "The revenue growth from July to August is approximately -6.67%."
+  },
+  {
+    "session_id": "session47",
+    "user_input": "What is the total revenue for the first eight months?",
+    "expected_output": "The total revenue for the first eight months is 1,580,000."
+  },
+  {
+    "session_id": "session48",
+    "user_input": "What is the total profit for the first eight months?",
+    "expected_output": "The total profit for the first eight months is 680,000."
+  },
+  {
+    "session_id": "session49",
+    "user_input": "In September, the revenue was 320,000.",
+    "expected_output": "Revenue data for September is stored."
+  },
+  {
+    "session_id": "session50",
+    "user_input": "In September, the cost was 150,000.",
+    "expected_output": "Cost data for September is stored."
+  },
+  {
+    "session_id": "session51",
+    "user_input": "What is the profit margin for September?",
+    "expected_output": "The profit margin for September is 53.13%."
+  },
+  {
+    "session_id": "session52",
+    "user_input": "What is the total revenue from January to September?",
+    "expected_output": "The total revenue from January to September is 1,900,000."
+  },
+  {
+    "session_id": "session53",
+    "user_input": "What is the average profit from January to September?",
+    "expected_output": "The average profit from January to September is approximately 92,222."
+  },
+  {
+    "session_id": "session54",
+    "user_input": "What is the revenue growth from August to September?",
+    "expected_output": "The revenue growth from August to September is approximately 14.29%."
+  },
+  {
+    "session_id": "session55",
+    "user_input": "Which month had the highest revenue so far?",
+    "expected_output": "The month with the highest revenue so far is September with 320,000."
+  },
+  {
+    "session_id": "session56",
+    "user_input": "Which month had the highest profit so far?",
+    "expected_output": "The month with the highest profit so far is September with 170,000."
+  },
+  {
+    "session_id": "session57 Cohen",
+    "user_input": "What is the average profit margin from January to September?",
+    "expected_output": "The average profit margin from January to September is approximately 43.59%."
+  },
+  {
+    "session_id": "session58",
+    "user_input": "What is the total revenue for the third quarter (July to September)?",
+    "expected_output": "The total revenue for the third quarter (July to September) is 900,000."
+  },
+  {
+    "session_id": "session59",
+    "user_input": "What is the total profit for the third quarter (July to September)?",
+    "expected_output": "The total profit for the third quarter (July to September) is 380,000."
+  },
+  {
+    "session_id": "session60",
+    "user_input": "Compare the revenue growth from the first quarter (January to March) to the second quarter (April to June).",
+    "expected_output": "The revenue growth from the first quarter (January to March, total revenue 370,000) to the second quarter (April to June, total revenue 630,000) is approximately 70.27%."
+  },
+  {
+    "session_id": "session61",
+    "user_input": "What is the trend of profit margins from January to September?",
+    "expected_output": "The profit margins from January to September are: January (40%), February (41.67%), March (46.67%), April (50%), May (50%), June (52%), July (53.33%), August (53.57%), September (53.13%). The trend shows a general increase in profit margins over the months, with a slight dip in September."
+  },
+  {
+    "session_id": "session62",
+    "user_input": "What was the revenue in January, and how does it compare to the revenue in September?",
+    "expected_output": "The revenue in January was 100,000, and in September, it was 320,000. The revenue in September is 220% higher than in January."
+  },
+  {
+    "session_id": "session63",
+    "user_input": "What is the cumulative revenue growth from January to September?",
+    "expected_output": "The cumulative revenue growth from January (100,000) to September (320,000) is 220%."
+  },
+  {
+    "session_id": "session64",
+    "user_input": "What is the average monthly revenue growth rate from January to September?",
+    "expected_output": "The average monthly revenue growth rate from January to September is approximately 15.02%."
+  }
+]
