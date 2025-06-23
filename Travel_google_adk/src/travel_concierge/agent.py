@@ -16,9 +16,7 @@
 
 from google.adk.agents import Agent
 from google.adk.memory import BaseMemoryService
-
 from travel_concierge import prompt
-
 from travel_concierge.sub_agents.booking.agent import booking_agent
 from travel_concierge.sub_agents.in_trip.agent import in_trip_agent
 from travel_concierge.sub_agents.inspiration.agent import inspiration_agent
@@ -30,31 +28,59 @@ from travel_concierge.tools.memory_control import AgenticMemorySystem
 from travel_concierge.tools.memory import _load_precreated_itinerary
 
 import click
-from google.adk.memory import BaseMemoryService
-from google.adk.events import Event
 from google.adk.sessions import InMemorySessionService, Session
 from typing_extensions import override
-
-from pydantic import BaseModel
-from pydantic import Field
-from typing import Dict, List
-import json
 from dotenv import load_dotenv
 import os
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
-from typing import Optional
 from google.genai import types
-import re
-from google.genai.types import Content, Part
 from travel_concierge.tools.memory  import TravelMemoryService
 from google.adk.runners import Runner
 import asyncio
+from google.adk.tools import load_memory
+
+APP_NAME = "Travel Concierge"
+USER_ID = "user123"
+    
+async def handle_user_query(runner, session, query):
+    # Kiểm tra câu hỏi xem có liên quan đến thông tin đã lưu trong bộ nhớ không
+    if "what is my" in query.lower():  # Ví dụ câu hỏi liên quan đến sở thích
+        # Gọi công cụ load_memory để tìm kiếm trong bộ nhớ
+        async for event in runner.run_async(
+            user_id=session.user_id,
+            session_id=session.id,
+            new_message=types.Content(role='user', parts=[types.Part(text=query)]),
+        ):
+            if event.get_function_calls():  # Nếu có yêu cầu gọi hàm load_memory
+                memories = await load_memory.run_async(
+                    args={"query": query, "app_name": APP_NAME, "user_id": session.user_id},
+                    tool_context={}  # Ngữ cảnh công cụ có thể thêm vào nếu cần
+                )
+                if memories.memories:
+                    return memories.memories[0]["content"].parts[0].text
+                else:
+                    return "I don't have any memory about that. Could you tell me again?"
+    
+    # Nếu câu hỏi không liên quan đến bộ nhớ, xử lý bình thường
+    else:
+        user_input = types.Content(role='user', parts=[types.Part(text=query)])
+        async for event in runner.run_async(
+            user_id=session.user_id,
+            session_id=session.id,
+            new_message=user_input,
+        ):
+            if event.content and event.content.parts:
+                return ''.join(part.text or '' for part in event.content.parts)
+    return None
 
 
 async def main():
-    APP_NAME = "Travel Concierge"
-    USER_ID = "user123"
+
+    
+    session_service = InMemorySessionService()
+    memory_service = TravelMemoryService()
+    
     root_agent = Agent(
         model="gemini-2.0-flash-001",
         name="root_agent",
@@ -68,42 +94,37 @@ async def main():
             in_trip_agent,
             post_trip_agent,
         ],
-        before_agent_callback=_load_precreated_itinerary
+        tools=[
+            load_memory
+        ],
+        # before_agent_callback=_load_precreated_itinerary
     )
-    
-    session_service = InMemorySessionService()
-    memory_service = TravelMemoryService()
     runner = Runner(
         agent=root_agent,
         app_name=APP_NAME,
         session_service=session_service,
         memory_service=memory_service
     )
-
     session1_id = "test_memory"
     session = await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=session1_id)
-
     while True:
         query = input('[user]: ')
         if not query or not query.strip():
             continue
         if query == 'exit':
             break
-
-        # Tạo phần nội dung của người dùng
         user_input = types.Content(role='user', parts=[types.Part(text=query)])
-
-        # Gửi yêu cầu và nhận phản hồi từ agent
         async for event in runner.run_async(
             user_id=session.user_id,
             session_id=session.id,
             new_message=user_input,
         ):
+            print(f"  Event: {event.author} - Type: {'Text' if event.content and event.content.parts and event.content.parts[0].text else ''}"
+            f"{'FuncCall' if event.get_function_calls() else ''}"
+            f"{'FuncResp' if event.get_function_responses() else ''}")
             if event.content and event.content.parts:
                 if text := ''.join(part.text or '' for part in event.content.parts):
                     click.echo(f'[{event.author}]: {text}')
-                
-                # Lưu thông tin vào bộ nhớ sau mỗi lần trả lời
                 await memory_service.add_session_to_memory(session)
 
     await runner.close()
