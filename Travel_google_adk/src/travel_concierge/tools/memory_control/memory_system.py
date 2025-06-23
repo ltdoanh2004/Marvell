@@ -62,7 +62,6 @@ class MemoryNote:
         """
         # Core content and ID
         self.content = content
-        print(f"MemoryNote: {content}")
         self.id = id or str(uuid.uuid4())
         
         # Semantic metadata
@@ -240,9 +239,7 @@ class AgenticMemorySystem:
         
         # Update retriever with all documents
         evo_label, note = self.process_memory(note)
-        print(f"Processing memory: {note.content} with ID: {note.id}, should evolve: {evo_label}")
         self.memories[note.id] = note
-        print(f"Current memory count: {self.memories}")
         # Add to ChromaDB with complete metadata
         metadata = {
             "id": note.id,
@@ -258,10 +255,6 @@ class AgenticMemorySystem:
             "tags": note.tags
         }
         self.retriever.add_document(note.content, metadata, note.id)
-        print(f"Added to ChromaDB: {note.content} with ID: {note.id}")
-        print(f"số collection: {self.retriever.get_collection_count()}")
-        self.retriever.list_documents()
-        self.consolidate_memories()
         if evo_label == True:
             self.evo_cnt += 1
             if self.evo_cnt % self.evo_threshold == 0:
@@ -519,7 +512,6 @@ class AgenticMemorySystem:
         try:
             # Get results from ChromaDB
             results = self.retriever.search(query, k)
-            print(results)
             # Process results
             memories = []
             seen_ids = set()

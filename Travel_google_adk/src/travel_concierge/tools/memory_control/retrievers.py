@@ -49,7 +49,6 @@ class ChromaRetriever:
                 processed_metadata[key] = json.dumps(value)
             else:
                 processed_metadata[key] = str(value)
-        print(document, processed_metadata, doc_id)
         self.collection.add(
             documents=[document],
             metadatas=[processed_metadata],
