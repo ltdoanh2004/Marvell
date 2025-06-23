@@ -100,7 +100,6 @@ class TravelMemoryService(BaseMemoryService):
 
 
 async def main():
-    os.environ["GOOGLE_API_KEY"] = 'AIzaSyCa9vwwIoufyZOK2n_Amww8pSdzrqKLDNo'
     # --- Constants ---
     APP_NAME = "memory_example_app"
     USER_ID = "mem_user"
