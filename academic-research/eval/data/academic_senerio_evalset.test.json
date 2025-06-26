@@ -1,0 +1,107 @@
+{
+  "eval_set_id": "academic_agent_long_term_memory_advanced",
+  "name": "Academic Agent Advanced Long-Term Memory Eval",
+  "description": "Evaluates the agent's ability to maintain and utilize long-term memory across multiple sessions and research contexts.",
+  "eval_cases": [
+    {
+      "eval_id": "session_1_analyze_first_paper",
+      "conversation": [
+        {
+          "invocation_id": "inv-001",
+          "user_content": {
+            "parts": [{ "text": "Analyze 'Attention is All You Need' and summarize its main impact." }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "The paper 'Attention is All You Need' introduced the Transformer model, shifting the field of NLP by relying solely on attention mechanisms." }],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "id": "tool-001", "args": { "file": "attention_is_all_you_need.pdf" }, "name": "analyze_paper" }
+            ],
+            "intermediate_responses": []
+          }
+        },
+        {
+          "invocation_id": "inv-002",
+          "user_content": {
+            "parts": [{ "text": "Find recent papers that cite 'Attention is All You Need' and summarize their research focus." }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "Recent papers cite the Transformer for advancements in large language models, vision transformers, and efficient attention mechanisms." }],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "id": "tool-002", "args": { "query": "citations of attention is all you need" }, "name": "search_academic" }
+            ],
+            "intermediate_responses": [
+              ["academic_websearch_agent", [
+                { "text": "Found papers such as ViT (image classification), T5 (text-to-text transfer), and GPT variants referencing Transformer architecture." }
+              ]]
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "academic_research",
+        "user_id": "researcher123",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "session_2_user_memory_check",
+      "conversation": [
+        {
+          "invocation_id": "inv-003",
+          "user_content": {
+            "parts": [{ "text": "What did I learn in the last session about Transformer-based papers?" }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "You learned that 'Attention is All You Need' introduced Transformers, and many recent papers like ViT and GPT cite this architecture in their work." }],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "id": "tool-003", "args": { "query": "retrieve session summary for user researcher123" }, "name": "retrieve_memory" }
+            ],
+            "intermediate_responses": [
+              ["memory_agent", [
+                { "text": "Session recall: Transformer introduced attention mechanism. ViT, T5, GPT cite it as foundational." }
+              ]]
+            ]
+          }
+        },
+        {
+          "invocation_id": "inv-004",
+          "user_content": {
+            "parts": [{ "text": "Can you connect that insight with research about cross-modal learning?" }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "Cross-modal learning often builds on Transformer architectures to align text and vision modalities, as seen in CLIP and Flamingo." }],
+            "role": null
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "id": "tool-004", "args": { "context": "Transformer-based citation trends + cross-modal models" }, "name": "synthesize_future_direction" }
+            ],
+            "intermediate_responses": [
+              ["academic_newresearch_agent", [
+                { "text": "CLIP and Flamingo are examples where Transformers enable unified representations across vision and text, showing a trend of multi-modal unification." }
+              ]]
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "academic_research",
+        "user_id": "researcher123",
+        "state": {}
+      }
+    }
+  ]
+} 

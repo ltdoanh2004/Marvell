@@ -1,0 +1,18 @@
+{
+  "eval_set_id": "evalsetb7481d",
+  "name": "evalsetb7481d",
+  "description": null,
+  "eval_cases": [
+    {
+      "eval_id": "case4dfb52",
+      "conversation": [],
+      "session_input": {
+        "app_name": "academic_research",
+        "user_id": "user",
+        "state": {}
+      },
+      "creation_timestamp": 1750933459.2173948
+    }
+  ],
+  "creation_timestamp": 1750933453.07935
+}
