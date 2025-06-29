@@ -22,20 +22,44 @@ from typing import Dict, List, Optional
 from typing_extensions import override
 from google.adk.agents import LlmAgent
 from google.adk.tools.agent_tool import AgentTool
-
+from google.adk.tools import load_memory
 from pydantic import BaseModel, Field
 from . import prompt
 from .sub_agents.academic_newresearch import academic_newresearch_agent
 from .sub_agents.academic_websearch import academic_websearch_agent
-from google.adk.sessions import InMemorySessionService, Session, BaseMemoryService, Event
-from google.adk.memory import InMemoryMemoryService # Import MemoryService
+from google.adk.sessions import InMemorySessionService, Session
+from google.adk.memory import InMemoryMemoryService, BaseMemoryService
 from google.adk.runners import Runner
 
 from google.genai import types
 from google.genai.types import Content, Part
 
 from mem0 import Memory
-
+config = {
+    "llm": {
+        "provider": "openai",
+        "config": {
+            "model": "gpt-4o",
+            "temperature": 0.1,
+            "max_tokens": 2000,
+        }
+    },
+    "embedder": {
+        "provider": "openai",
+        "config": {
+            "model": "text-embedding-3-large"
+        }
+    },
+    "vector_store": {
+        "provider": "qdrant",
+        "config": {
+            "collection_name": "test",
+            "embedding_model_dims": 1536,
+        }
+    },
+    "version": "v1.1",
+}
+load_dotenv()
 class MemoryEntry(BaseModel):
   """Represent one memory entry."""
 
@@ -58,15 +82,13 @@ class SearchMemoryResponse(BaseModel):
   """
 
   memories: list[MemoryEntry] = Field(default_factory=list)
-class InMemoryMemoryService(BaseMemoryService):
+class OmemoryService(BaseMemoryService):
   """An in-memory memory service for prototyping purpose only.
-
   Uses keyword matching instead of semantic search.
   """
-
   def __init__(self):
-    self._session_events: dict[str, dict[str, list[Event]]] = {}
-    self
+    self.memory = Memory.from_config(config)
+    self._session_events = {}
     """Keys are app_name/user_id, session_id. Values are session event lists."""
   def _user_key(self, app_name: str, user_id: str) -> str:
       return f"{app_name}/{user_id}"
@@ -74,51 +96,47 @@ class InMemoryMemoryService(BaseMemoryService):
   @override
   async def add_session_to_memory(self, session: Session):
     user_key = self._user_key(session.app_name, session.user_id)
-    self._session_events[user_key] = self._session_events.get(
-        self._user_key(session.app_name, session.user_id), {}
+    event_list = [event for event in session.events if event.content and event.content.parts]
+    event_content = "\n".join(
+      [part.text for event in event_list for part in event.content.parts if part.text is not None]
     )
-    self._session_events[user_key][session.id] = [
-        event
-        for event in session.events
-        if event.content and event.content.parts
-    ]
-
+    self._session_events[user_key] = self._session_events.get(user_key, {})
+    print("[LOG] Adding session to memory:")
+    # print("[LOG]", event_content)
+    self.memory.add(
+        user_id=user_key,
+        messages=event_content,
+        infer=False
+    )
   @override
   async def search_memory(
       self, *, app_name: str, user_id: str, query: str
   ) -> SearchMemoryResponse:
     user_key = self._user_key(app_name, user_id)
+    print(f"[LOG] Searching memory for user {user_key} with query: {query}")
     if user_key not in self._session_events:
       return SearchMemoryResponse()
-
-    words_in_query = set(query.lower().split())
+    
     response = SearchMemoryResponse()
-
-    for session_events in self._session_events[user_key].values():
-      for event in session_events:
-        if not event.content or not event.content.parts:
-          continue
-        words_in_event = _extract_words_lower(
-            ' '.join([part.text for part in event.content.parts if part.text])
-        )
-        if not words_in_event:
-          continue
-
-        if any(query_word in words_in_event for query_word in words_in_query):
-          response.memories.append(
+    results = self.memory.search(
+      query=query,
+      user_id=user_key,
+    )
+    results = "\n".join(
+        [f"{i+1}. {m['memory']}" for i, m in  enumerate(results['results'])]
+    )
+    response.memories.append(
               MemoryEntry(
-                  content=event.content,
-                  author=event.author,
-                  timestamp=_utils.format_timestamp(event.timestamp),
-              )
-          )
-
+                  content = Content(parts=[Part(text=results)], role="model")
+              ).model_dump())
     return response
-APP_NAME = "memory_example_app"
-USER_ID = "mem_user"
-MODEL = "gemini-2.0-flash" 
+
 
 async def main():
+    APP_NAME = "memory_example_app"
+    USER_ID = "mem_user"
+    MODEL = "gemini-2.0-flash" 
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     academic_coordinator = LlmAgent(
         name="academic_coordinator",
         model=MODEL,
@@ -128,23 +146,55 @@ async def main():
             "relevant to the seminal paper, generating suggestions "
             "for new research directions, and accessing web resources "
             "to acquire knowledge"
+            "Answer the user's question. Use the 'load_memory' tool if the answer might be in past conversations."
         ),
         instruction=prompt.ACADEMIC_COORDINATOR_PROMPT,
         output_key="seminal_paper",
         tools=[
             AgentTool(agent=academic_websearch_agent),
             AgentTool(agent=academic_newresearch_agent),
+            load_memory
         ],
     )
 
 
     session_service = InMemorySessionService()
-    memory_service = InMemoryMemoryService() # Use in-memory for demo
-
+    # memory_service = InMemoryMemoryService() # Use in-memory for demo
+    memory_service = OmemoryService()
     runner = Runner(
-        # Start with the info capture agent
         agent=academic_coordinator,
         app_name=APP_NAME,
         session_service=session_service,
         memory_service=memory_service # Provide the memory service to the Runner
     )
+    # session1_id = "session1"
+    # session1 = await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=session1_id)
+    # user_input1 = Content(parts=[Part(text="Hello")], role="user")
+    
+    # final_response_text = "(No final response)"
+    # async for event in runner.run_async(user_id=USER_ID, session_id=session1_id, new_message=user_input1):
+    #     if event.is_final_response() and event.content and event.content.parts:
+    #         final_response_text = event.content.parts[0].text
+    # await memory_service.add_session_to_memory(
+    #         await runner.session_service.get_session(app_name=APP_NAME, user_id=USER_ID, session_id=session1_id))
+    # print(f"Agent 1 Response: {final_response_text}")
+    session_id = "cli_session"
+    await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=session_id)
+    print("Type 'exit' to quit.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == "exit":
+            break
+        user_message = Content(parts=[Part(text=user_input)], role="user")
+        final_response_text = "(No final response)"
+        async for event in runner.run_async(user_id=USER_ID, session_id=session_id, new_message=user_message):
+            if event.is_final_response() and event.content and event.content.parts:
+                final_response_text = event.content.parts[0].text
+        await memory_service.add_session_to_memory(
+            await runner.session_service.get_session(app_name=APP_NAME, user_id=USER_ID, session_id=session_id)
+        )
+
+        print(f"Agent: {final_response_text}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
