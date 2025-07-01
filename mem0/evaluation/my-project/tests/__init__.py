@@ -1,0 +1,3 @@
+# SPDX-FileCopyrightText: 2025-present ltdoan2004 <doanh25032004@gmail.com>
+#
+# SPDX-License-Identifier: MIT

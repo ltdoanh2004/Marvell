@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my-project"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "ltdoan2004", email = "doanh25032004@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/ltdoan2004/my-project#readme"
+Issues = "https://github.com/ltdoan2004/my-project/issues"
+Source = "https://github.com/ltdoan2004/my-project"
+
+[tool.hatch.version]
+path = "src/my_project/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/my_project tests}"
+
+[tool.coverage.run]
+source_pkgs = ["my_project", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/my_project/__about__.py",
+]
+
+[tool.coverage.paths]
+my_project = ["src/my_project", "*/my-project/src/my_project"]
+tests = ["tests", "*/my-project/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
