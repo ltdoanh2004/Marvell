@@ -1,0 +1,29 @@
+.searchViewContainer {
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid white;
+  background: var(--global-background-default);
+  border-radius: var(--border-radius);
+}
+
+.messagesContainer {
+  flex-basis: 400px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.messages {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.message {
+  padding: 16px;
+  border-radius: var(--border-radius);
+}
+
+.userMessage {
+  align-self: flex-end;
+  background-color: #5858ff;
+}
