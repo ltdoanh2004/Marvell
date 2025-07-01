@@ -1,0 +1,30 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: depot-ubuntu-22.04
+    environment:
+      name: development
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Run non-integration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          uv run pytest -m "not integration"
