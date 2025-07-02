@@ -1,10 +1,16 @@
 
 # Run the experiments
-run-mem0-add:
+run-mem0-add-open-ai:
 	python run_experiments.py --technique_type mem0 --method add
 
-run-mem0-search:
+run-mem0-search-open-ai:
 	python run_experiments.py --technique_type mem0 --method search --output_folder results/ --top_k 30
+
+run-mem0-add-gemini:
+	python run_experiments.py --technique_type mem0 --method add --model gemini
+
+run-mem0-search-gemini:
+	python run_experiments.py --technique_type mem0 --method search --output_folder results/ --top_k 30 --model gemini
 
 run-mem0-plus-add:
 	python run_experiments.py --technique_type mem0 --method add --is_graph

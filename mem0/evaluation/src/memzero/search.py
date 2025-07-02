@@ -9,74 +9,20 @@ from jinja2 import Template
 from openai import OpenAI
 from prompts import ANSWER_PROMPT, ANSWER_PROMPT_GRAPH
 from tqdm import tqdm
-
+from src.memzero.config import *
 from mem0 import MemoryClient
 from mem0 import Memory
 load_dotenv()
-SHARED_CONFIG = {  
-    "llm": {  
-        "provider": "openai",  
-        "config": {  
-            "model": os.getenv("MODEL", "gpt-4o-mini"),  
-            "api_key": os.getenv("OPENAI_API_KEY")  
-        }  
-    },  
-    "embedder": {  
-        "provider": "openai",   
-        "config": {  
-            "model": os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),  
-            "api_key": os.getenv("OPENAI_API_KEY")  
-        }  
-    },  
-    "vector_store": {  
-        "provider": "faiss",  
-        "config": {  
-            "path": "./faiss_db",  
-            "collection_name": "mem0_evaluation"  
-        }  
-    }  
-}
-SHARED_CONFIG_WITH_GRAPH = {  
-    "version": "v1.1",  
-    "vector_store": {  
-        "provider": "faiss",  
-        "config": {  
-            "path": "./faiss_graph_db",  
-            "collection_name": "mem0_evaluation"  
-        }  
-    },  
-    "graph_store": {  
-        "provider": "neo4j",  
-        "config": {  
-            "url": "bolt://localhost:7688",  
-            "username": "neo4j",  
-            "password": "demodemo"  
-        }  
-    },  
-    "llm": {  
-        "provider": "openai",  
-        "config": {  
-            "api_key": os.getenv("OPENAI_API_KEY") ,  
-            "model": "gpt-4o",  
-            "temperature": 0.2  
-        }  
-    },  
-    "embedder": {  
-        "provider": "openai",  
-        "config": {  
-            "model": "text-embedding-3-small"  
-        }  
-    },  
-    "history_db_path": "./shared_graph_evaluation_history.db"  
-}
+    
 class MemorySearch:
-    def __init__(self, output_path="results.json", top_k=10, filter_memories=False, is_graph=False):
-        # self.mem0_client = MemoryClient(
-        #     api_key=os.getenv("MEM0_API_KEY"),
-        #     org_id=os.getenv("MEM0_ORGANIZATION_ID"),
-        #     project_id=os.getenv("MEM0_PROJECT_ID"),
-        # )
-        config = SHARED_CONFIG_WITH_GRAPH if is_graph else SHARED_CONFIG
+    def __init__(self, output_path="results.json", top_k=10, filter_memories=False, is_graph=False, model="gpt-4o"):
+        if model == "gpt-4o":
+            config = SHARED_CONFIG_OPEN_AI_WITH_GRAPH if is_graph else SHARED_OPEN_AI_CONFIG
+        elif model == "gemini":
+            config = SHARED_CONFIG_GEMINI_WITH_GRAPH if is_graph else SHARED_GEMINI_CONFIG
+        print("Using config:", config)
+        os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+        os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
         self.mem0_client = Memory.from_config(config)
         self.top_k = top_k
         self.openai_client = OpenAI()

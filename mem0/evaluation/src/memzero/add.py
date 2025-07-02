@@ -3,7 +3,7 @@ import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-
+from src.memzero.config import *
 from dotenv import load_dotenv
 from tqdm import tqdm
 
@@ -11,63 +11,7 @@ from mem0 import MemoryClient
 from mem0 import Memory
 
 load_dotenv()
-SHARED_CONFIG = {  
-    "llm": {  
-        "provider": "openai",  
-        "config": {  
-            "model": os.getenv("MODEL", "gpt-4o-mini"),  
-            "api_key": os.getenv("OPENAI_API_KEY")  
-        }  
-    },  
-    "embedder": {  
-        "provider": "openai",   
-        "config": {  
-            "model": os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),  
-            "api_key": os.getenv("OPENAI_API_KEY")  
-        }  
-    },  
-    "vector_store": {  
-        "provider": "faiss",  
-        "config": {  
-            "path": "./faiss_db",  
-            "collection_name": "mem0_evaluation"  
-        }  
-    }  
-}
-SHARED_CONFIG_WITH_GRAPH = {  
-    "version": "v1.1",  
-    "vector_store": {  
-        "provider": "faiss",  
-        "config": {  
-            "path": "./faiss_graph_db",  
-            "collection_name": "mem0_evaluation"  
-        }  
-    },  
-    "graph_store": {  
-        "provider": "neo4j",  
-        "config": {  
-            "url": "bolt://localhost:7688",  
-            "username": "neo4j",  
-            "password": "demodemo"  
-        }  
-    },  
-    "llm": {  
-        "provider": "openai",  
-        "config": {  
-            "api_key": os.getenv("OPENAI_API_KEY"),  
-            "model": "gpt-4o",  
-            "temperature": 0.2  
-        }  
-    },  
-    "embedder": {  
-        "provider": "openai",  
-        "config": {  
-            "model": "text-embedding-3-small"  
-        }  
-    },  
-    "history_db_path": "./shared_graph_evaluation_history.db"  
-}
-# Update custom instructions
+
 custom_instructions = """
 Generate personal memories that follow these guidelines:
 
@@ -98,14 +42,22 @@ Generate personal memories that follow these guidelines:
 
 
 class MemoryADD:
-    def __init__(self, data_path=None, batch_size=2, is_graph=False):
+    def __init__(self, data_path=None, batch_size=2, is_graph=False, model ="gpt-4o"):
         # self.mem0_client = MemoryClient(
         #     api_key=os.getenv("MEM0_API_KEY"),
         #     org_id=os.getenv("MEM0_ORGANIZATION_ID"),
         #     project_id=os.getenv("MEM0_PROJECT_ID"),
         # )
-        config = SHARED_CONFIG_WITH_GRAPH if is_graph else SHARED_CONFIG
+        if model == "gpt-4o":
+            config = SHARED_CONFIG_OPEN_AI_WITH_GRAPH if is_graph else SHARED_OPEN_AI_CONFIG
+        elif model == "gemini":
+            config = SHARED_CONFIG_GEMINI_WITH_GRAPH if is_graph else SHARED_GEMINI_CONFIG
+        print(os.getenv("GOOGLE_API_KEY"))
+        os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+        print("Using config:", config)
+        os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
         self.mem0_client = Memory.from_config(config)
+
         # self.mem0_client.update_project(custom_instructions=custom_instructions)
         self.batch_size = batch_size
         self.data_path = data_path
