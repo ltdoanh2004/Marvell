@@ -21,6 +21,9 @@ import pandas as pd
 import time 
 from graphiti_core.helpers import semaphore_gather
 from graphiti_core.llm_client import LLMConfig, OpenAIClient
+from graphiti_core.prompts import prompt_library  
+from graphiti_core.prompts.eval import EvalAddEpisodeResults  
+
 from mem0 import Memory
 
 SHARED_CONFIG_OPEN_AI_WITH_GRAPH = {  
@@ -60,8 +63,7 @@ SHARED_CONFIG_OPEN_AI_WITH_GRAPH = {
 class MemoryADD:
     def __init__(self, config):
         self.config = config
-        self.memory = Memory(config=config)
-
+        self.memory = Memory.from_config(config)
 
     async def build_subgraph(
         self,
@@ -88,8 +90,8 @@ class MemoryADD:
                         _ = self.memory.add(
                             episode_body, user_id=user_id, metadata={"timestamp": date_string}
                         )
-                        semantic_memories, graph_memories, _ = self.memory.get(
-                            user_id=user_id, limit=1, metadata={"timestamp": date_string}
+                        semantic_memories, graph_memories, _ = self.memory.search(   
+                            user_id=user_id, limit=1
                         )
                         results = graph_memories[0]
                         results['content'] = semantic_memories[0]["memory"]
@@ -100,8 +102,9 @@ class MemoryADD:
                             continue
                         else:
                             raise e
-            add_episode_results.append(results)
             add_episode_context.append(msg['content'])
+            add_episode_results.append(results)
+
         return user_id, add_episode_results, add_episode_context
 
     async def build_graph(
@@ -109,7 +112,7 @@ class MemoryADD:
     ):
         # Get longmemeval dataset
         lme_dataset_option = (
-            'data/longmemeval_data/longmemeval_oracle.json'  # Can be _oracle, _s, or _m
+            'tests/evals/data/longmemeval_data/longmemeval_oracle.json'  # Can be _oracle, _s, or _m
         )
         lme_dataset_df = pd.read_json(lme_dataset_option)
         add_episode_results = {}
@@ -133,41 +136,61 @@ class MemoryADD:
 
         return add_episode_results, add_episode_context
 
-
-    async def eval_graph(multi_session_count: int, session_length: int, llm_client=None) -> float:
-        if llm_client is None:
-            llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini'))
-        graphiti = Graphiti(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD, llm_client=llm_client)
-        with open('baseline_graph_results.json') as file:
-            baseline_results_raw = json.load(file)
-
-            baseline_results: dict[str, list[AddEpisodeResults]] = {
-                key: [AddEpisodeResults(**item) for item in value]
-                for key, value in baseline_results_raw.items()
-            }
-        add_episode_results, add_episode_context = await build_graph(
-            'candidate', multi_session_count, session_length, graphiti
+    async def build_baseline_graph(self, multi_session_count: int, session_length: int):
+        # Use gpt-4.1-mini for graph building baseline
+        add_episode_results, add_episode_context = await self.build_graph(
+            'baseline', multi_session_count, session_length
         )
 
-        filename = 'candidate_graph_results.json'
+        filename = 'baseline_mem0_graph_results.json'
 
-        candidate_baseline_graph_results = {
+        serializable_baseline_graph_results = {
             key: [item.model_dump(mode='json') for item in value]
             for key, value in add_episode_results.items()
         }
 
         with open(filename, 'w') as file:
-            json.dump(candidate_baseline_graph_results, file, indent=4, default=str)
+            json.dump(serializable_baseline_graph_results, file, indent=4, default=str)
+
+
+        filename = 'baseline_mem0_context_results.json'
+
+        with open(filename, 'w') as file:
+            json.dump(add_episode_context, file, indent=4, default=str)
+
+
+
+    async def compare_graph(self, multi_session_count: int, session_length: int, llm_client=None) -> float:
+        if llm_client is None:
+            llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini'))
+        with open('baseline_mem0_graph_results.json') as file:
+            baseline_mem0_raw = json.load(file)
+            baseline_mem0_results  = {
+                key: [item for item in value]
+                for key, value in baseline_mem0_raw.items()
+            }
+        with open('baseline_mem0_context_results.json') as file:
+            baseline_mem0_context = json.load(file)
+            baseline_mem0_context_results= {
+                key: [item for item in value]
+                for key, value in baseline_mem0_context.items()
+            }
+        with open('baseline_graphiti_graph_results.json') as file:
+            baseline_graphiti_raw = json.load(file)
+            baseline_graphiti_results: dict[str, list[AddEpisodeResults]] = {
+                key: [AddEpisodeResults(**item) for item in value]
+                for key, value in baseline_graphiti_raw.items()
+            }
 
         raw_score = 0
         user_count = 0
-        for user_id in add_episode_results:
+        for user_id in baseline_mem0_results:
             user_count += 1
             user_raw_score = 0
             for baseline_result, add_episode_result, episodes in zip(
-                baseline_results[user_id],
-                add_episode_results[user_id],
-                add_episode_context[user_id],
+                baseline_graphiti_results[user_id],
+                baseline_mem0_results[user_id],
+                baseline_mem0_context_results[user_id],
                 strict=False,
             ):
                 context = {
@@ -185,7 +208,7 @@ class MemoryADD:
                 candidate_is_worse = llm_response.get('candidate_is_worse', False)
                 user_raw_score += 0 if candidate_is_worse else 1
                 print('llm_response:', llm_response)
-            user_score = user_raw_score / len(add_episode_results[user_id])
+            user_score = user_raw_score / len(baseline_mem0_results[user_id])
             raw_score += user_score
         score = raw_score / user_count
 
