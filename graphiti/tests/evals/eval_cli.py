@@ -2,7 +2,8 @@ import argparse
 import asyncio
 
 from tests.evals.eval_e2e_graph_building import build_baseline_graph, eval_graph
-
+from dotenv import load_dotenv
+load_dotenv()
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -30,10 +31,10 @@ async def main():
         )
 
     # Always call eval_graph
-    result = await eval_graph(
-        multi_session_count=args.multi_session_count, session_length=args.session_length
-    )
-    print('Result of eval_graph:', result)
+    # result = await eval_graph(
+    #     multi_session_count=args.multi_session_count, session_length=args.session_length
+    # )
+    # print('Result of eval_graph:', result)
 
 
 if __name__ == '__main__':

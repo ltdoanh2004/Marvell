@@ -18,7 +18,7 @@ import json
 from datetime import datetime, timezone
 
 import pandas as pd
-
+import os
 from graphiti_core import Graphiti
 from graphiti_core.graphiti import AddEpisodeResults
 from graphiti_core.helpers import semaphore_gather
@@ -27,7 +27,9 @@ from graphiti_core.nodes import EpisodeType
 from graphiti_core.prompts import prompt_library
 from graphiti_core.prompts.eval import EvalAddEpisodeResults
 from tests.test_graphiti_int import NEO4J_URI, NEO4j_PASSWORD, NEO4j_USER
-
+from dotenv import load_dotenv
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
 
 async def build_subgraph(
     graphiti: Graphiti,
@@ -75,7 +77,7 @@ async def build_graph(
 ) -> tuple[dict[str, list[AddEpisodeResults]], dict[str, list[str]]]:
     # Get longmemeval dataset
     lme_dataset_option = (
-        'data/longmemeval_data/longmemeval_oracle.json'  # Can be _oracle, _s, or _m
+        'tests/evals/data/longmemeval_data/longmemeval_oracle.json'  # Can be _oracle, _s, or _m
     )
     lme_dataset_df = pd.read_json(lme_dataset_option)
 
@@ -104,9 +106,10 @@ async def build_graph(
 
 async def build_baseline_graph(multi_session_count: int, session_length: int):
     # Use gpt-4.1-mini for graph building baseline
-    llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini'))
+    print("api_key:", api_key)
+    llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini', api_key = api_key))
     graphiti = Graphiti(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD, llm_client=llm_client)
-
+    await graphiti.build_indices_and_constraints()
     add_episode_results, _ = await build_graph(
         'baseline', multi_session_count, session_length, graphiti
     )

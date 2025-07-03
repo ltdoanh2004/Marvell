@@ -35,6 +35,7 @@ pytest_plugins = ('pytest_asyncio',)
 load_dotenv()
 
 NEO4J_URI = os.getenv('NEO4J_URI')
+print(f'NEO4J_URI: {NEO4J_URI}')
 NEO4j_USER = os.getenv('NEO4J_USER')
 NEO4j_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
