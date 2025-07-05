@@ -44,12 +44,12 @@ async def main():
             )  
             print('Baseline Mem0 graph built successfully!')  
     # Run comparison  
-    # print('Running Mem0 vs Graphiti comparison...')  
-    # result = await memory_eval.compare_graph(  
-    #     multi_session_count=args.multi_session_count,   
-    #     session_length=args.session_length  
-    # )  
-    # print(f'Comparison result: {result}')  
+    print('Running Mem0 vs Graphiti comparison...')  
+    result = await memory_eval.compare_graph(  
+        multi_session_count=args.multi_session_count,   
+        session_length=args.session_length  
+    )  
+    print(f'Comparison result: {result}')  
   
 if __name__ == '__main__':  
     asyncio.run(main())

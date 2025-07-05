@@ -1,0 +1,146 @@
+{
+    "lme_oracle_experiment_user_0": [
+        {
+            "source": "user_id:_lme_oracle_experiment_user_0",
+            "relationship": "seeking_recommendations_for",
+            "target": "detailers",
+            "content": "Thinking of getting car detailed soon",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_0",
+            "relationship": "had",
+            "target": "experience",
+            "content": "Thinking of getting car detailed soon",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "car",
+            "relationship": "maintains",
+            "target": "appearance",
+            "content": "User is considering getting a wax and detailing done every 3-4 months to maintain the car's appearance and protect the paint.",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "car",
+            "relationship": "maintains",
+            "target": "appearance",
+            "content": "User is considering getting a wax and detailing done every 3-4 months to maintain the car's appearance and protect the paint.",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "waxing",
+            "relationship": "helps",
+            "target": "maintain_appearance",
+            "content": "Better gas mileage than old car",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "maintenance",
+            "relationship": "includes",
+            "target": "repairs",
+            "content": "Getting around 32 miles per gallon",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "shell_gas_station",
+            "relationship": "near",
+            "target": "office",
+            "content": "Using the rewards program at the Shell gas station near the office to earn points",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "gas_station",
+            "relationship": "provides",
+            "target": "points",
+            "content": "Using the rewards program at the Shell gas station near the office to earn points",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "gas_station",
+            "relationship": "provides",
+            "target": "points",
+            "content": "Redeemed 50,000 points from credit card for a $500 gift card to a car accessories store",
+            "timestamp": "2023-04-10T17:50:00Z"
+        },
+        {
+            "source": "car",
+            "relationship": "maintains",
+            "target": "appearance",
+            "content": "Enjoys using credit card rewards for practical items",
+            "timestamp": "2023-04-10T17:50:00Z"
+        }
+    ],
+    "lme_oracle_experiment_user_1": [
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "avoid",
+            "target": "procrastination",
+            "content": "Looking for apps or tools to prioritize tasks and avoid procrastination",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "todoist",
+            "relationship": "is_a",
+            "target": "task_management_app",
+            "content": "Looking for apps or tools to prioritize tasks and avoid procrastination",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "helps_with",
+            "target": "work",
+            "content": "Trying to implement strategies like prioritizing tasks and breaking them down into smaller chunks",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "schedule",
+            "relationship": "is_created_to_plan",
+            "target": "tasks",
+            "content": "Trying to implement strategies like prioritizing tasks and breaking them down into smaller chunks",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "minimize",
+            "target": "distractions",
+            "content": "Looking for ways to minimize distractions while working on tasks that require a lot of concentration",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "schedule",
+            "relationship": "is_created_to_plan",
+            "target": "tasks",
+            "content": "Looking for ways to minimize distractions while working on tasks that require a lot of concentration",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "working_on",
+            "target": "tasks",
+            "content": "One of the biggest distractions is social media",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "goals",
+            "relationship": "are_defined_by",
+            "target": "specific,_measurable_goals",
+            "content": "One of the biggest distractions is social media",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "checks",
+            "target": "phone",
+            "content": "Trying to implement website blockers and scheduling social media breaks",
+            "timestamp": "2023-05-28T21:04:00Z"
+        },
+        {
+            "source": "user_id:_lme_oracle_experiment_user_1",
+            "relationship": "manages",
+            "target": "anxiety",
+            "content": "User is working on breaking the habit of mindlessly checking their phone",
+            "timestamp": "2023-05-28T21:04:00Z"
+        }
+    ]
+}

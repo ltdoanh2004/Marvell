@@ -107,7 +107,7 @@ async def build_graph(
 async def build_baseline_graph(multi_session_count: int, session_length: int):
     # Use gpt-4.1-mini for graph building baseline
     print("api_key:", api_key)
-    llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini', api_key = api_key))
+    llm_client = OpenAIClient(config=LLMConfig(model='gpt-4o-mini', api_key = api_key))
     graphiti = Graphiti(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD, llm_client=llm_client)
     await graphiti.build_indices_and_constraints()
     add_episode_results, _ = await build_graph(

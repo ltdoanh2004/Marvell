@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import asyncio
 import typing
 
 from openai import AsyncOpenAI
@@ -69,13 +70,18 @@ class OpenAIClient(BaseOpenAIClient):
         response_model: type[BaseModel],
     ):
         """Create a structured completion using OpenAI's beta parse API."""
-        return await self.client.beta.chat.completions.parse(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            response_format=response_model,  # type: ignore
-        )
+        while True:
+            try:
+                return await self.client.beta.chat.completions.parse(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                response_format=response_model,  # type: ignore
+            )
+            except: 
+                print("Rate limit hit, sleeping 10s...")
+                await asyncio.sleep(10)
 
     async def _create_completion(
         self,
