@@ -20,12 +20,12 @@ from datetime import datetime, timezone
 import pandas as pd
 import time 
 from graphiti_core.helpers import semaphore_gather
-from graphiti_core.llm_client import LLMConfig, OpenAIClient
+from graphiti_core.llm_client import LLMConfig, OpenAIClient, GeminiClient
 from graphiti_core.prompts import prompt_library  
 from graphiti_core.prompts.eval import EvalAddEpisodeResults  
-
+from graphiti_core.graphiti import AddEpisodeResults
 from mem0 import Memory
-
+from tqdm import tqdm
 SHARED_CONFIG_OPEN_AI_WITH_GRAPH = {  
     "version": "v1.1",  
     "vector_store": {
@@ -76,8 +76,8 @@ class MemoryADD:
         add_episode_results = []
         add_episode_context: list[str] = []
         message_count = 0
-        for session_idx, session in enumerate(multi_session):
-            for _, msg in enumerate(session):
+        for session_idx, session in tqdm(enumerate(multi_session)):
+            for _, msg in tqdm(enumerate(session)):
                 if message_count >= session_length:
                     continue
                 message_count += 1
@@ -90,9 +90,21 @@ class MemoryADD:
                         _ = self.memory.add(
                             episode_body, user_id=user_id, metadata={"timestamp": date_string}
                         )
-                        semantic_memories, graph_memories, _ = self.memory.search(   
-                            user_id=user_id, limit=1
+                        memories = self.memory.search(
+                            query=f"retrive memory for: {episode_body}", user_id=user_id, limit=1
                         )
+                        semantic_memories = [
+                            {
+                                "memory": memory["memory"],
+                                "timestamp": memory["metadata"]["timestamp"],
+                                "score": round(memory["score"], 2),
+                            }
+                            for memory in memories["results"]
+                        ]
+                        graph_memories = [  
+                            {"source": relation["source"], "relationship": relation["relationship"], "target": relation["destination"]}  
+                            for relation in memories["relations"]  
+                        ]
                         results = graph_memories[0]
                         results['content'] = semantic_memories[0]["memory"]
                         results['timestamp'] = semantic_memories[0]["timestamp"]
@@ -102,8 +114,8 @@ class MemoryADD:
                             continue
                         else:
                             raise e
-            add_episode_context.append(msg['content'])
-            add_episode_results.append(results)
+                add_episode_context.append(msg['content'])
+                add_episode_results.append(results)
 
         return user_id, add_episode_results, add_episode_context
 
@@ -144,10 +156,7 @@ class MemoryADD:
 
         filename = 'baseline_mem0_graph_results.json'
 
-        serializable_baseline_graph_results = {
-            key: [item.model_dump(mode='json') for item in value]
-            for key, value in add_episode_results.items()
-        }
+        serializable_baseline_graph_results = add_episode_results 
 
         with open(filename, 'w') as file:
             json.dump(serializable_baseline_graph_results, file, indent=4, default=str)
@@ -162,7 +171,8 @@ class MemoryADD:
 
     async def compare_graph(self, multi_session_count: int, session_length: int, llm_client=None) -> float:
         if llm_client is None:
-            llm_client = OpenAIClient(config=LLMConfig(model='gpt-4.1-mini'))
+            # llm_client = OpenAIClient(config=LLMConfig(model='gpt-4o'))
+            llm_client = GeminiClient(config=LLMConfig(model='gemini-2.0-flash'))
         with open('baseline_mem0_graph_results.json') as file:
             baseline_mem0_raw = json.load(file)
             baseline_mem0_results  = {
@@ -175,7 +185,7 @@ class MemoryADD:
                 key: [item for item in value]
                 for key, value in baseline_mem0_context.items()
             }
-        with open('baseline_graphiti_graph_results.json') as file:
+        with open('baseline_graph_results.json') as file:
             baseline_graphiti_raw = json.load(file)
             baseline_graphiti_results: dict[str, list[AddEpisodeResults]] = {
                 key: [AddEpisodeResults(**item) for item in value]
@@ -184,7 +194,7 @@ class MemoryADD:
 
         raw_score = 0
         user_count = 0
-        for user_id in baseline_mem0_results:
+        for user_id in tqdm(baseline_mem0_results):
             user_count += 1
             user_raw_score = 0
             for baseline_result, add_episode_result, episodes in zip(

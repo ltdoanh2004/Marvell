@@ -31,10 +31,10 @@ async def main():
         )
 
     # Always call eval_graph
-    # result = await eval_graph(
-    #     multi_session_count=args.multi_session_count, session_length=args.session_length
-    # )
-    # print('Result of eval_graph:', result)
+    result = await eval_graph(
+        multi_session_count=args.multi_session_count, session_length=args.session_length
+    )
+    print('Result of eval_graph:', result)
 
 
 if __name__ == '__main__':
