@@ -10,6 +10,7 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, default="results", help="Directory to save evaluation results.")
     parser.add_argument("--is_graph", action="store_true", help="Use graph memory.")
     parser.add_argument("--batch_size", type=int, default=2, help="Batch size for memory addition.")
+    parser.add_argument("--add-mem")
     return parser.parse_args()
 
 def main(args):
@@ -23,10 +24,9 @@ def main(args):
         is_graph=args.is_graph,
         model=args.model
     )
-    # Chạy đánh giá và lưu kết quả
-    results = evaluator.process_memory()
+    evaluator.process_add_memory()
+    results = evaluator.search_and_answer_memory()
     evaluator.save_results(results, output_path=output_path)
-    # Tính BLEU, F1, LLM score trung bình
     evaluator.evaluate_bleu_f1(results)
 
 if __name__ == '__main__':

@@ -5,16 +5,15 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from memzero.config import *
 from dotenv import load_dotenv
-from tqdm import tqdm
-import openai
+from openai import OpenAI
 import time
 from mem0 import Memory
-
 from memzero.utils.metrics import compute_bleu, compute_f1
-
+from tqdm import tqdm
 load_dotenv()
+client = OpenAI()
 
-custom_instructions = """
+CUSTOM_INSTRUCTIONS = """
 Generate personal memories that follow these guidelines:
 
 1. Each memory should be self-contained with complete context, including:
@@ -41,14 +40,14 @@ Generate personal memories that follow these guidelines:
 
 5. Format each memory as a paragraph with a clear narrative structure that captures the person's experience, challenges, and aspirations
 """
-
-
 class MemoryEvaluation:
     def __init__(self, data_path=None, batch_size=2, is_graph=False, model ="gpt-4o"):
         if model == "gpt-4o":
             config = SHARED_CONFIG_OPEN_AI_WITH_GRAPH if is_graph else SHARED_OPEN_AI_CONFIG
         elif model == "gemini":
             config = SHARED_CONFIG_GEMINI_WITH_GRAPH if is_graph else SHARED_GEMINI_CONFIG
+
+        config['custon_instructions'] = CUSTOM_INSTRUCTIONS 
         self.mem0_client = Memory.from_config(config)
 
         self.batch_size = batch_size
@@ -64,13 +63,13 @@ class MemoryEvaluation:
         return self.data
     
     def process_add_memory(self):
-        for entry in self.data:
-             for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
+        for entry in tqdm(self.data, desc="add questions to memory"):
+            for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
                 metadata = {
                      "session_id": cur_sess_id,
                      "date": date
                 }
-                for sample in sess_entry:
+                for sample in tqdm(sess_entry, desc="Adding memory samples"):
                     self.add_memory(user_id=entry['question_id'], message=sample, metadata=metadata)
 
     def add_memory(self, user_id, message, metadata, retries=3):
@@ -157,9 +156,9 @@ class MemoryEvaluation:
             ]
         return semantic_memories, graph_memories, end_time - start_time
     
-    def process_memory(self):
+    def search_and_answer_memory(self):
         results = []
-        for entry in self.data:
+        for entry in tqdm(self.data, desc="Processing memories and evaluate scores"):
             question = entry['question']
             semantic_memories, graph_memories, _ = self.search_memory(
                     user_id=entry['question_id'], 
@@ -207,13 +206,11 @@ class MemoryEvaluation:
         return prompt
         
     def get_llm_answer(prompt, model="gpt-4o"):
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=512,
+        response = client.responses.create(
+            model="gpt-4o",
+            input=prompt
         )
-        return response.choices[0].message["content"].strip() 
+        return response.output_text
 
     def get_llm_evaluation(question, reference_answer, llm_answer, model="gpt-4o"):
         eval_prompt = (
@@ -224,11 +221,9 @@ class MemoryEvaluation:
             "Give a score from 0 (completely wrong) to 10 (perfectly correct). "
             "Return your result as a JSON object with keys: score (int), explanation (str)."
         )
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=[{"role": "user", "content": eval_prompt}],
-            temperature=0,
-            max_tokens=256,
+        response = client.responses.create(
+            model="gpt-4o",
+            input=eval_prompt
         )
         return response.choices[0].message["content"].strip()        
     
