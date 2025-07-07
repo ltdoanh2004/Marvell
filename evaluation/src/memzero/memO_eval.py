@@ -41,7 +41,7 @@ Generate personal memories that follow these guidelines:
 5. Format each memory as a paragraph with a clear narrative structure that captures the person's experience, challenges, and aspirations
 """
 class MemoryEvaluation:
-    def __init__(self, data_path=None, batch_size=2, is_graph=False, model ="gpt-4o"):
+    def __init__(self, data_path=None, batch_size=2, is_graph=False, model ="gpt-4o",percentage_to_process=1):
         if model == "gpt-4o":
             config = SHARED_CONFIG_OPEN_AI_WITH_GRAPH if is_graph else SHARED_OPEN_AI_CONFIG
         elif model == "gemini":
@@ -49,10 +49,10 @@ class MemoryEvaluation:
 
         config['custon_instructions'] = CUSTOM_INSTRUCTIONS 
         self.mem0_client = Memory.from_config(config)
-
         self.batch_size = batch_size
         self.data_path = data_path
         self.data = None
+        self.percentage_to_process = percentage_to_process
         self.is_graph = is_graph
         if data_path:
             self.load_data()
@@ -63,7 +63,10 @@ class MemoryEvaluation:
         return self.data
     
     def process_add_memory(self):
-        for entry in tqdm(self.data, desc="add questions to memory"):
+        print(f"Processing {len(self.data)} entries with batch size {self.batch_size} and percentage {self.percentage_to_process}")
+        n = int(len(self.data) * self.percentage_to_process)
+        data_to_process = self.data[:n]
+        for entry in tqdm(data_to_process, desc="add questions to memory"):
             for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
                 metadata = {
                      "session_id": cur_sess_id,
@@ -89,10 +92,11 @@ class MemoryEvaluation:
     def process_add_memory_parallel(self, num_threads=4):
         if not self.data:
             raise ValueError("Data not loaded. Please load data before processing.")
-
+        n = int(len(self.data) * self.percentage_to_process)
+        data_to_process = self.data[:n]
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             futures = []
-            for entry in tqdm(self.data, desc="Processing entries"):
+            for entry in tqdm(data_to_process, desc="Processing entries"):
                 for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
                     metadata = {
                         "session_id": cur_sess_id,
@@ -157,8 +161,10 @@ class MemoryEvaluation:
         return semantic_memories, graph_memories, end_time - start_time
     
     def search_and_answer_memory(self):
+        n = int(len(self.data) * self.percentage_to_process)
+        data_to_process = self.data[:n]
         results = []
-        for entry in tqdm(self.data, desc="Processing memories and evaluate scores"):
+        for entry in tqdm(data_to_process, desc="Processing memories and evaluate scores"):
             question = entry['question']
             semantic_memories, graph_memories, _ = self.search_memory(
                     user_id=entry['question_id'], 
