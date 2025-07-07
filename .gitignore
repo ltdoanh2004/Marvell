@@ -2,3 +2,4 @@
 graphiti/tests/evals/data
 evaluation/data/longmemeval_m.json
 evaluation/data/longmemeval_s.json
+LongMemEval/data
