@@ -3,7 +3,7 @@ SHARED_OPEN_AI_CONFIG = {
     "llm": {  
         "provider": "openai",  
         "config": {  
-            "model": os.getenv("MODEL", "gpt-4o-mini"),  
+            "model": os.getenv("MODEL", "gpt-4o"),  
             "api_key": os.getenv("OPENAI_API_KEY")  
         }  
     },  
