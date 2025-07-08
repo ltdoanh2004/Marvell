@@ -1,0 +1,515 @@
+[
+  {
+    "question": "What degree did I graduate with?",
+    "reference_answer": "Business Administration",
+    "llm_answer": "You graduated with a degree in Business Administration.",
+    "evaluation_results": {
+      "score": 10,
+      "explanation": "The LLM Answer perfectly matches the Reference Answer, correctly identifying the degree as Business Administration. There is no deviation between the two answers."
+    },
+    "response_time": 1.1053111553192139,
+    "semantic_memories": [
+      {
+        "memory": "Graduated with a degree in Business Administration",
+        "timestamp": "N/A",
+        "score": 0.57
+      },
+      {
+        "memory": "Taking an online course on diversity and inclusion",
+        "timestamp": "N/A",
+        "score": 0.24
+      },
+      {
+        "memory": "Attended a networking event last week",
+        "timestamp": "N/A",
+        "score": 0.24
+      },
+      {
+        "memory": "Has experience in design principles",
+        "timestamp": "2023/05/26 (Fri) 04:52",
+        "score": 0.23
+      },
+      {
+        "memory": "Acquired an aquamarine ring on June 1st",
+        "timestamp": "2023/05/30 (Tue) 09:50",
+        "score": 0.22
+      },
+      {
+        "memory": "Earned a decent amount of cash back from Ibotta",
+        "timestamp": "N/A",
+        "score": 0.22
+      },
+      {
+        "memory": "Skilled in Adobe After Effects, Illustrator, Photoshop, and Premiere",
+        "timestamp": "N/A",
+        "score": 0.21
+      },
+      {
+        "memory": "Working on a case study for Grade A Steakhouse",
+        "timestamp": "N/A",
+        "score": 0.2
+      },
+      {
+        "memory": "Attended Rachel's baby shower",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Experienced in design principles",
+        "timestamp": "2023/05/29 (Mon) 19:30",
+        "score": 0.18
+      },
+      {
+        "memory": "Bought an aquamarine ring on sale at 20% off on June 1st",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "World Series just ended",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Involved in communicating diversity and inclusion goals and progress to stakeholders",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Involved in communicating diversity and inclusion goals and progress to stakeholders",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Interested in feedback on company's diversity and inclusion statement",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Interested in feedback on company's diversity and inclusion statement",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Interested in feedback on company's diversity and inclusion statement",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Interested in feedback on company's diversity and inclusion statement",
+        "timestamp": "N/A",
+        "score": 0.18
+      },
+      {
+        "memory": "Attended a Bruno Mars concert at the Arena",
+        "timestamp": "N/A",
+        "score": 0.17
+      },
+      {
+        "memory": "New role in a professional setting",
+        "timestamp": "N/A",
+        "score": 0.17
+      },
+      {
+        "memory": "New role involves paperwork and documentation",
+        "timestamp": "N/A",
+        "score": 0.17
+      },
+      {
+        "memory": "Conducting content analysis of 9 interviews",
+        "timestamp": "2023/05/23 (Tue) 03:04",
+        "score": 0.17
+      },
+      {
+        "memory": "User is a senior UX designer",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Interested in farm-to-table experiences and cooking classes",
+        "timestamp": "2023/05/21 (Sun) 22:48",
+        "score": 0.16
+      },
+      {
+        "memory": "Applying for the position of Senior Motion Designer at Dash",
+        "timestamp": "2023/05/29 (Mon) 19:30",
+        "score": 0.16
+      },
+      {
+        "memory": "Finished listening to a true crime podcast on January 15th",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "New job with a 9-to-5 schedule",
+        "timestamp": "2023/05/30 (Tue) 17:27",
+        "score": 0.16
+      },
+      {
+        "memory": "Purchased essential oils from a local health food store",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Purchased essential oils from a local health food store",
+        "timestamp": "2023/05/20 (Sat) 02:57",
+        "score": 0.16
+      },
+      {
+        "memory": "Planning a class about the secondary effects of external radiation therapy",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Attended the Rock on the River concert series at the Riverfront Amphitheater",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Interested in communicating diversity and inclusion goals and progress to stakeholders including employees, customers, and investors",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Last check-up showed slightly higher than normal blood pressure readings",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Watched it with dad",
+        "timestamp": "N/A",
+        "score": 0.16
+      },
+      {
+        "memory": "Inquiring about the fees involved for registration",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "User is named Michael",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Bought a new vacuum cleaner online during a sale with a 15% off coupon code on 2025-07-08",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in music or cultural events",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in learning more about smart home technology",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Looking to track diversity metrics",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Looking for numbered topics on radiation therapy for a class lecture",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in history, culture, and trying local food and drinks",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in inclusive hiring practices",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in inclusive hiring practices",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Attended a benefit concert called Music for a Cause at the Community Center",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Reaching out to local community colleges, craft stores, and art organizations for classes or workshops to improve craft-making skills",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Has animation skills",
+        "timestamp": "2023/05/29 (Mon) 19:30",
+        "score": 0.15
+      },
+      {
+        "memory": "Talked to women and non-binary attendees at the networking event",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Has a t-shirt with The Electric Storm album artwork",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Requested help with writing texts for a PowerPoint presentation",
+        "timestamp": "2023/05/20 (Sat) 03:51",
+        "score": 0.15
+      },
+      {
+        "memory": "Interested in creating a mentorship program",
+        "timestamp": "N/A",
+        "score": 0.15
+      },
+      {
+        "memory": "Converted guest room into a home office",
+        "timestamp": "2023/05/30 (Tue) 11:27",
+        "score": 0.14
+      },
+      {
+        "memory": "User has a friend getting out of a long sentence for charges",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Is a hummus enthusiast",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Used all extra serving utensils and plates during the last dinner party",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Listened to the episode with Naval Ravikant on December 20th",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Received new binoculars in the mail last Thursday",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Got a new diffuser on March 22nd",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Listened to an episode of 'My Brother, My Brother and Me' on January 25th",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Interested in mentoring and developing younger practitioners",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Looking for the best spell to increase AC for a sorcerer/monk",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Price of aquamarine ring is unknown, purchased on sale at 20% off",
+        "timestamp": "2023/05/30 (Tue) 09:50",
+        "score": 0.14
+      },
+      {
+        "memory": "Interested in learning about the production process and tasting olive oils",
+        "timestamp": "N/A",
+        "score": 0.14
+      },
+      {
+        "memory": "Recently purchased kitchen knives",
+        "timestamp": "2023/05/30 (Tue) 21:40",
+        "score": 0.13
+      },
+      {
+        "memory": "Invested in a Fitbit Inspire HR",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Enjoyed a high-energy performance by The Electric Storm",
+        "timestamp": "2023/05/22 (Mon) 09:23",
+        "score": 0.13
+      },
+      {
+        "memory": "Beginner cook",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Overall aesthetic of the room is a mix of modern and industrial chic",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "User is interested in sorcerer spells available at 5th level for enhancing monk damage output",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Looking for positive and negative implications of all attributes",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Looking for local classes or workshops to improve craft-making skills",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Aquamarine ring is size 7",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Got the blood pressure monitor on March 10th",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Received a deposit into PayPal account from Ibotta rewards",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Still on a high from the Astros' win",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Has a metal desk and chair",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Received a coupon for $1 off a box of granola bars",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Received a coupon for $1 off a box of granola bars",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Made the switch to LED bulbs",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Inquiring about the ordering process at a BBQ joint",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Inquiring about the ordering process at a BBQ joint",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Recently reorganized kitchen cabinets",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Congratulations to Rachel on the birth of her baby boy, Lucas",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "User sent a follow-up email to a client regarding price offers for HexaChem",
+        "timestamp": "2023/05/22 (Mon) 18:02",
+        "score": 0.13
+      },
+      {
+        "memory": "Interested in art exhibitions or festivals",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Interested in analysis on the Astros' performance this season",
+        "timestamp": "N/A",
+        "score": 0.13
+      },
+      {
+        "memory": "Attended a singer-songwriter night at the Coffee House on Main Street",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Had a great time at the Farmers' Market",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Found a single pearl earring while cleaning out jewelry box on July 3rd",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Attended a singer-songwriter night at the Coffee House on Main Street",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Attended a singer-songwriter night at the Coffee House on Main Street",
+        "timestamp": "2023/05/22 (Mon) 09:23",
+        "score": 0.12
+      },
+      {
+        "memory": "Attended a singer-songwriter night at the Coffee House on Main Street",
+        "timestamp": "2023/05/22 (Mon) 09:23",
+        "score": 0.12
+      },
+      {
+        "memory": "Interested in getting smart bulbs",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Makes an effort to stay informed about current events",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "User wore the locket to their cousin's wedding on June 15th",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Is an avid eBirder",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Trying to make the most of the new office space",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Trying to make the most of the new office space",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Had a big project at work that disrupted routine",
+        "timestamp": "N/A",
+        "score": 0.12
+      },
+      {
+        "memory": "Interested in supplements for bodybuilding",
+        "timestamp": "N/A",
+        "score": 0.12
+      }
+    ],
+    "graph_memories": null
+  }
+]

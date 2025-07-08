@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -10,6 +11,7 @@ import time
 from mem0 import Memory
 from memzero.utils.metrics import compute_bleu, compute_f1
 from tqdm import tqdm
+import re
 load_dotenv()
 client = OpenAI()
 
@@ -70,7 +72,7 @@ class MemoryEvaluation:
             for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
                 metadata = {
                      "session_id": cur_sess_id,
-                     "date": date
+                     "timestamp": date
                 }
                 for sample in tqdm(sess_entry, desc="Adding memory samples"):
                     self.add_memory(user_id=entry['question_id'], message=sample, metadata=metadata)
@@ -89,7 +91,7 @@ class MemoryEvaluation:
                 else:
                     raise e
 
-    def process_add_memory_parallel(self, num_threads=4):
+    def process_add_memory_parallel(self, num_threads=8):
         if not self.data:
             raise ValueError("Data not loaded. Please load data before processing.")
         n = int(len(self.data) * self.percentage_to_process)
@@ -100,7 +102,7 @@ class MemoryEvaluation:
                 for cur_sess_id, sess_entry, date in zip(entry['haystack_session_ids'], entry['haystack_sessions'], entry['haystack_dates']):
                     metadata = {
                         "session_id": cur_sess_id,
-                        "date": date
+                        "timestamp": date
                     }
                     for sample in sess_entry:
                         futures.append(executor.submit(
@@ -139,7 +141,7 @@ class MemoryEvaluation:
             semantic_memories = [
                 {
                     "memory": memory["memory"],
-                    "timestamp": memory["metadata"]["timestamp"],
+                    "timestamp": memory["metadata"].get("timestamp", "N/A"),
                     "score": round(memory["score"], 2),
                 }
                 for memory in memories["results"]
@@ -149,7 +151,7 @@ class MemoryEvaluation:
             semantic_memories = [
                 {
                     "memory": memory["memory"],
-                    "timestamp": memory["metadata"]["timestamp"],
+                    "timestamp": memory["metadata"].get("timestamp", "N/A"),
                     "score": round(memory["score"], 2),
                 }
                 for memory in memories["results"]
@@ -166,35 +168,48 @@ class MemoryEvaluation:
         results = []
         for entry in tqdm(data_to_process, desc="Processing memories and evaluate scores"):
             question = entry['question']
+            t1 = time.time()
             semantic_memories, graph_memories, _ = self.search_memory(
                     user_id=entry['question_id'], 
                     query=question
             )
+            t2 = time.time()
+            search_mem_time = t2 - t1
             prompt = self.build_prompt_question_answer(entry, semantic_memories, graph_memories)
             t1 = time.time()
             llm_answer = self.get_llm_answer(prompt)
             t2 = time.time()
             response_time = t2 - t1
-            eval_json = self.get_llm_evaluation(question, answer, llm_answer)
             answer = entry['answer']
+
+            eval_json = self.get_llm_evaluation(question, answer, llm_answer)
             try:
                 eval_result = json.loads(eval_json)
             except Exception:
                 eval_result = {"score": None, "explanation": eval_json}
+
+            eval_mem_json = self.get_llm_evaluation_for_memory(question, answer, semantic_memories)
+            try:
+                eval_mem_result = json.loads(eval_mem_json)
+            except Exception:
+                eval_mem_result = {"score": None, "explanation": eval_mem_json}
             results.append({
                 "question": question,
+                "question_id": entry['question_id'],
                 "reference_answer": answer,
                 "llm_answer": llm_answer,
                 "evaluation_results": eval_result,
+                "evaluation_memory_results": eval_mem_result,
                 "response_time": response_time,
                 "semantic_memories": semantic_memories,
                 "graph_memories": graph_memories,
+                "search_memory_time": search_mem_time,
             })
+        return results
     
     def build_prompt_question_answer(self, entry, semantic_memories, graph_memories):
         question = entry['question']
 
-        # Xây dựng phần context từ semantic memories
         if semantic_memories:
             memories_text = "\n".join(
                 f"- {mem['memory']} (score: {mem['score']}, time: {mem['timestamp']})"
@@ -202,6 +217,13 @@ class MemoryEvaluation:
             )
         else:
             memories_text = "No relevant past memories found."
+
+        if graph_memories:
+            graph_text = "\n".join(
+                f"- {rel['source']} --{rel['relationship']}--> {rel['target']}"
+                for rel in graph_memories
+            )
+            memories_text += f"\n\nGraph Relations:\n{graph_text}"
 
         prompt = (
             f"Context (Past Memories):\n{memories_text}\n\n"
@@ -211,14 +233,14 @@ class MemoryEvaluation:
 
         return prompt
         
-    def get_llm_answer(prompt, model="gpt-4o"):
+    def get_llm_answer(self, prompt, model="gpt-4o"):
         response = client.responses.create(
-            model="gpt-4o",
+            model=model,
             input=prompt
         )
         return response.output_text
 
-    def get_llm_evaluation(question, reference_answer, llm_answer, model="gpt-4o"):
+    def get_llm_evaluation(self, question, reference_answer, llm_answer, model="gpt-4o"):
         eval_prompt = (
             f"Question: {question}\n"
             f"Reference Answer: {reference_answer}\n"
@@ -228,15 +250,53 @@ class MemoryEvaluation:
             "Return your result as a JSON object with keys: score (int), explanation (str)."
         )
         response = client.responses.create(
-            model="gpt-4o",
-            input=eval_prompt
+            model=model,
+            input=eval_prompt,
         )
-        return response.choices[0].message["content"].strip()        
+        evaluation_str = response.output[0].content[0].text
+        # Trích JSON từ string kiểu ```json {...}```
+        match = re.search(r"```json\s*(\{.*?\})\s*```", evaluation_str, re.DOTALL)
+        if not match:
+            raise ValueError("LLM output is not in expected JSON format.")
+        evaluation_data = match.group(1)
+
+        # Ghi ra file
+
+
+        return evaluation_data
     
-    def evaluate_bleu_f1(self, results):
+    def get_llm_evaluation_for_memory(self, question, reference_answer, reference_memory, model="gpt-4o"):
+        eval_prompt = (
+            f"Question: {question}\n"
+            f"Reference Answer: {reference_answer}\n"
+            f"Reference Memory: {reference_memory}\n\n"
+            "Evaluate the Reference Memory compared to the Reference Answer. Do it provide enough context to answer the question? "
+            "Give a score from 0 (completely wrong) to 10 (perfectly correct). "
+            "Return your result as a JSON object with keys: score (int), explanation (str)."
+        )
+        response = client.responses.create(
+            model=model,
+            input=eval_prompt,
+        )
+        evaluation_str = response.output[0].content[0].text
+        # Trích JSON từ string kiểu ```json {...}```
+        match = re.search(r"```json\s*(\{.*?\})\s*```", evaluation_str, re.DOTALL)
+        if not match:
+            raise ValueError("LLM output is not in expected JSON format.")
+        evaluation_data = match.group(1)
+
+        # Ghi ra file
+
+
+        return evaluation_data
+
+
+    def evaluate_bleu_f1(self, results, output_path=None):
         bleu_scores = []
         f1_scores = []
         llm_scores = []
+        mem_scores = []
+        print(f"Evaluating {len(results)} results for BLEU, F1, and LLM scores...")
         for item in results:
             ref = item["reference_answer"]
             hyp = item["llm_answer"]
@@ -246,17 +306,28 @@ class MemoryEvaluation:
             f1_scores.append(f1)
             # Lấy score do LLM chấm nếu có
             score = item.get("evaluation_results", {}).get("score")
+            mem_score = item.get("evaluation_memory_results", {}).get("score")
             if isinstance(score, (int, float)):
                 llm_scores.append(score)
+            if isinstance(mem_score, (int, float)):
+                mem_scores.append(mem_score)
         avg_bleu = sum(bleu_scores) / len(bleu_scores) if bleu_scores else 0
         avg_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0
         avg_llm_score = sum(llm_scores) / len(llm_scores) if llm_scores else 0
+        avg_mem_score = sum(mem_scores) / len(mem_scores) if mem_scores else 0
         print(f"Average BLEU: {avg_bleu:.4f}")
         print(f"Average F1: {avg_f1:.4f}")
         print(f"Average LLM Score: {avg_llm_score:.2f}")
-        return {"avg_bleu": avg_bleu, "avg_f1": avg_f1, "avg_llm_score": avg_llm_score}
-    
+        print(f"Average Memory Score: {avg_mem_score:.2f}")
+        avg_scores = {"avg_bleu": avg_bleu, "avg_f1": avg_f1, "avg_llm_score": avg_llm_score, "avg_mem_score": avg_mem_score}
+        if output_path:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(avg_scores, f, ensure_ascii=False, indent=2)
+            print(f"Average scores saved to {output_path}")
+        return avg_scores
+
     def save_results(self, results, output_path="results.json"):
+        print(f"Evaluating {results} sults for BLEU, F1, and LLM scores...")
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
         print(f"Results saved to {output_path}")
