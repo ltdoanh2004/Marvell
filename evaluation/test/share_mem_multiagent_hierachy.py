@@ -3,6 +3,7 @@ import asyncio
 from google.adk.agents import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.adk.tools import AgentTool
 from google.genai import types
 from mem0 import Memory
 from dotenv import load_dotenv
